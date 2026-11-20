@@ -1,0 +1,34 @@
+{
+  "_about": "A setup where data, account, sizing and every judgement gate pass. With today's registry TRX is only a RESEARCH_CANDIDATE, so the engine answers WAIT. It becomes TRADE CANDIDATE only if TRX is marked VALIDATED from a passing research run. Prices are illustrative, not current market levels.",
+  "expected_decision_today": "WAIT",
+  "expected_decision_if_strategy_validated": "TRADE CANDIDATE",
+  "market_data": {
+    "now_ms": 1795214104000, "execution_venue": "bitget", "instrument": "BTCUSDT", "category": "USDT-FUTURES", "purpose": "execution",
+    "quotes": [
+      {"provider": "bitget-api-v3", "exchange": "bitget", "instrument": "BTCUSDT", "category": "USDT-FUTURES", "timestamp_ms": 1795214102987, "timezone": "UTC", "price": 59990.0, "bid": 59989.9, "ask": 59990.0, "error": null},
+      {"provider": "crypto-com-mcp", "exchange": "crypto.com", "instrument": "BTCUSD-PERP", "category": "PERP", "timestamp_ms": 1795214100294, "timezone": "UTC", "price": 59930.0, "bid": 59929.9, "ask": 59930.3, "error": null}
+    ],
+    "contract": {"symbol": "BTCUSDT", "status": "online", "price_tick": 0.1, "qty_step": 0.0001, "min_qty": 0.0001, "min_notional": 5, "max_qty": 1200, "max_leverage": 150, "taker_fee": 0.0006, "maker_fee": 0.0002}
+  },
+  "account": {
+    "snapshot_ts_ms": 1795214050000, "now_ms": 1795214104000, "source": "bitget-api-readonly", "complete": true,
+    "ledgers": {"unified": 10000, "funding": 500, "bots": 2000, "cfd": 0}, "reported_overview_total": 12500, "liabilities": 0,
+    "trading_equity": 10000, "day_start_equity": 10000, "week_start_equity": 10050,
+    "positions": [], "pending_orders": [],
+    "candidate": {"symbol": "BTCUSDT", "side": "long", "asset_group": "crypto", "notional": 4272, "planned_risk": 49.94},
+    "kill_switch": false
+  },
+  "sizing_request": {
+    "equity": 10000, "available": 10000, "side": "long", "entry": 60000, "stop": 59400, "slippage": 0.0002,
+    "existing_gross_exposure": 0, "open_planned_risk": 0,
+    "contract": {"symbol": "BTCUSDT", "price_tick": 0.1, "qty_step": 0.0001, "min_qty": 0.0001, "min_notional": 5, "max_qty": 1200, "max_leverage": 150, "taker_fee": 0.0006, "maker_fee": 0.0002}
+  },
+  "expected_plan": {"position_size": 0.0712, "notional": 4272.0, "leverage_setting": 20, "effective_leverage": 0.4272, "maximum_planned_loss": 49.94, "take_profit_1": 60600.0, "take_profit_2": 61800.0},
+  "setup": {
+    "pair": "BTCUSDT", "direction": "long", "strategy": "TRX", "market_data_status": "VERIFIED",
+    "entry": 60000, "stop": 59400, "invalidation": "4H close below 59400 or the breakout bar's low",
+    "scores": {"market_structure": 14, "entry_quality": 14, "statistical_edge": 19, "liquidity": 10, "volatility": 5, "derivatives_evidence": 8, "macro_event_risk": 9, "execution_cost": 5, "risk_reward": 9},
+    "gates": {"data_quality_verified": true, "objective_entry_and_invalidation": true, "out_of_sample_evidence": true, "positive_net_expectancy": true, "liquidity_sufficient": true, "portfolio_risk_acceptable": true, "adversarial_review_passed": true},
+    "conflicting_signals": []
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_about": "A tempting short during a sell-off that the skill must reject: the only fresh quote is for a look-alike contract (XAUUSD.s CFD, not the XAUUSDT perpetual) while the real quote is 15 minutes old, an account already at its exposure limit, and a strategy with no validated edge.",
+  "expected_decision": "INSUFFICIENT DATA",
+  "expected_market_data_status": "CONFLICT",
+  "expected_portfolio_can_open": false,
+  "market_data": {
+    "now_ms": 1795214104000, "execution_venue": "bitget", "instrument": "XAUUSDT", "category": "USDT-FUTURES", "purpose": "execution",
+    "quotes": [
+      {"provider": "screenshot", "exchange": "bitget", "instrument": "XAUUSDT", "category": "USDT-FUTURES", "timestamp_ms": 1795213204000, "timezone": "UTC", "price": 3550.2, "bid": 3550.1, "ask": 3550.3, "error": null},
+      {"provider": "other-feed", "exchange": "bitget", "instrument": "XAUUSD.s", "category": "CFD", "timestamp_ms": 1795214103000, "timezone": "UTC", "price": 3546.0, "bid": 3545.8, "ask": 3546.2, "error": null}
+    ],
+    "contract": {"symbol": "XAUUSDT", "status": "online", "price_tick": 0.01, "qty_step": 0.01, "min_qty": 0.01, "min_notional": 5, "max_leverage": 100, "taker_fee": 0.0006, "maker_fee": 0.0002}
+  },
+  "account": {
+    "snapshot_ts_ms": 1795214050000, "now_ms": 1795214104000, "source": "bitget-api-readonly", "complete": true,
+    "ledgers": {"unified": 6000, "funding": 1000, "bots": 2400, "cfd": null}, "liabilities": 0,
+    "trading_equity": 6000, "day_start_equity": 6100, "week_start_equity": 6300,
+    "positions": [
+      {"symbol": "BTCUSDT", "side": "short", "notional": 9000, "asset_group": "crypto", "managed": false, "has_stop": false, "margin_mode": "crossed", "leverage_setting": 50},
+      {"symbol": "ETHUSDT", "side": "short", "notional": 8500, "asset_group": "crypto", "managed": false, "has_stop": true}
+    ],
+    "pending_orders": [{"symbol": "SOLUSDT", "side": "sell", "notional": 900, "reduce_only": false}],
+    "candidate": {"symbol": "XAUUSDT", "side": "short", "asset_group": "commodity", "notional": 1100, "planned_risk": 30},
+    "kill_switch": false
+  },
+  "setup": {
+    "pair": "XAUUSDT", "direction": "short", "strategy": "DBO", "market_data_status": "CONFLICT",
+    "entry": 3508.18, "stop": 3598.93, "invalidation": "4H close above 3598.93",
+    "scores": {"market_structure": 13, "entry_quality": 11, "statistical_edge": 15, "liquidity": 9, "volatility": 4, "derivatives_evidence": 0, "macro_event_risk": 0, "execution_cost": 4, "risk_reward": 8},
+    "gates": {"data_quality_verified": true, "objective_entry_and_invalidation": true, "out_of_sample_evidence": true, "positive_net_expectancy": true, "liquidity_sufficient": true, "portfolio_risk_acceptable": false, "adversarial_review_passed": false},
+    "conflicting_signals": ["positive funding favours the short, but the DBO short record on commodities is negative after costs"]
+  }
+}
