@@ -1,0 +1,353 @@
+{
+  "name": "APLUS 2 - Monitoring & Daily Audit",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "every-5-min",
+      "name": "Every 5 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "get-status",
+      "name": "Get status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.kill.active || !$json.connectivity.public_api.ok || !$json.connectivity.store.ok || $json.exec.breakers.length > 0 || $json.live_trading_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "unhealthy",
+      "name": "Unhealthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++ ALERT: kill={{ $json.kill.active }} ({{ $json.kill.reason }}) api={{ $json.connectivity.public_api.ok }} db={{ $json.connectivity.store.ok }} breakers={{ $json.exec.breakers.join('; ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "health-alert",
+      "name": "Health alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        -80
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++ ALERT: control API tidak merespons. Engine mati atau token salah.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "engine-down",
+      "name": "Engine down",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        200
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "23 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-07:23-wib",
+      "name": "Daily 07:23 WIB",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/run/audit",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}"
+      },
+      "id": "run-audit",
+      "name": "Run audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        460
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ !$json.complete }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "audit-incomplete",
+      "name": "Audit incomplete",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++: AUDIT AKUN TIDAK LENGKAP - {{ $json.issues.join(' | ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "audit-alert",
+      "name": "Audit alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        400
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++ audit harian: total equity USD {{ $json.total_equity }} | {{ JSON.stringify($json.ledgers) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "audit-summary",
+      "name": "Audit summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        560
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Every 5 min": {
+      "main": [
+        [
+          {
+            "node": "Get status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get status": {
+      "main": [
+        [
+          {
+            "node": "Unhealthy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Engine down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unhealthy": {
+      "main": [
+        [
+          {
+            "node": "Health alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily 07:23 WIB": {
+      "main": [
+        [
+          {
+            "node": "Run audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run audit": {
+      "main": [
+        [
+          {
+            "node": "Audit incomplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit incomplete": {
+      "main": [
+        [
+          {
+            "node": "Audit alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Audit summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

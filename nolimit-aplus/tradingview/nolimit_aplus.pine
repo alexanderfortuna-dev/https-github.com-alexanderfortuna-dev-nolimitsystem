@@ -1,0 +1,74 @@
+//@version=5
+// NO LIMIT A+++ - setup visualiser (context only).
+// Mirrors the two rule sets in aplus/strategies.py (TPB = trend pullback, DBO = Donchian breakout).
+// It draws the technical setup and can fire a webhook alert. It does NOT validate the edge,
+// size the position or approve risk: only the Python engine can do that. A signal here is
+// never a trade instruction.
+// Small numeric differences vs Python are possible in the first ~200 bars (indicator seeding).
+indicator("NO LIMIT A+++ setups (context only)", shorttitle="NL A+++", overlay=true, max_lines_count=200, max_labels_count=200)
+
+showTPB  = input.bool(true,  "Show TPB (trend pullback)")
+showDBO  = input.bool(true,  "Show DBO (Donchian breakout)")
+showLvls = input.bool(true,  "Draw entry / stop / TP levels")
+secret   = input.string("",  "Webhook secret (must equal APLUS_TV_SECRET in n8n)")
+
+ema20  = ta.ema(close, 20)
+ema50  = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
+atr14  = ta.atr(14)
+atr100 = ta.atr(100)
+trend  = ema50 > ema200 and close > ema200 ? 1 : ema50 < ema200 and close < ema200 ? -1 : 0
+
+validStop(float trig, float stp, int side) =>
+    d = (trig - stp) * side
+    d >= 0.5 * atr14 and d <= 3.0 * atr14
+
+// ---- TPB: dip into EMA20 and bullish/bearish reclaim, entry on break of the reclaim bar
+tpbTrigL = high
+tpbStopL = ta.lowest(low, 3) - 0.25 * atr14
+tpbTrigS = low
+tpbStopS = ta.highest(high, 3) + 0.25 * atr14
+tpbLong  = trend == 1  and math.min(low, low[1])   <= math.max(ema20, ema20[1]) and close > ema20 and close > open and validStop(tpbTrigL, tpbStopL, 1)
+tpbShort = trend == -1 and math.max(high, high[1]) >= math.min(ema20, ema20[1]) and close < ema20 and close < open and validStop(tpbTrigS, tpbStopS, -1)
+
+// ---- DBO: 20-bar range break in trend direction after volatility contraction
+dch = ta.highest(high, 20)
+dcl = ta.lowest(low, 20)
+squeeze  = atr14 < atr100
+dboLong  = trend == 1  and squeeze and close < dch and dch - close <= atr14 and validStop(dch, dch - 2.0 * atr14, 1)
+dboShort = trend == -1 and squeeze and close > dcl and close - dcl <= atr14 and validStop(dcl, dcl + 2.0 * atr14, -1)
+
+ok = barstate.isconfirmed and bar_index > 210   // closed bars only, after indicator warm-up
+
+drawSetup(string name, int side, float trig, float stp) =>
+    r   = math.abs(trig - stp)
+    tp1 = trig + side * 1.0 * r
+    tp2 = trig + side * 3.0 * r
+    label.new(bar_index, side == 1 ? low : high, name + (side == 1 ? " L" : " S"), style = side == 1 ? label.style_label_up : label.style_label_down,
+              color = side == 1 ? color.new(color.teal, 10) : color.new(color.red, 10), textcolor = color.white, size = size.tiny)
+    if showLvls
+        line.new(bar_index, trig, bar_index + 6, trig, color = color.gray,  style = line.style_dashed)
+        line.new(bar_index, stp,  bar_index + 6, stp,  color = color.red)
+        line.new(bar_index, tp1,  bar_index + 6, tp1,  color = color.teal, style = line.style_dotted)
+        line.new(bar_index, tp2,  bar_index + 6, tp2,  color = color.teal)
+
+payload(string strat, string side, float trig) =>
+    '{"secret":"' + secret + '","symbol":"' + syminfo.ticker + '","interval":"' + timeframe.period + '","strategy":"' + strat + '","side":"' + side + '","price":' + str.tostring(trig) + ',"message":"technical setup only - not a trade instruction"}'
+
+if ok and showTPB and tpbLong
+    drawSetup("TPB", 1, tpbTrigL, tpbStopL)
+    alert(payload("TPB", "long", tpbTrigL), alert.freq_once_per_bar_close)
+if ok and showTPB and tpbShort
+    drawSetup("TPB", -1, tpbTrigS, tpbStopS)
+    alert(payload("TPB", "short", tpbTrigS), alert.freq_once_per_bar_close)
+if ok and showDBO and dboLong and not dboLong[1]
+    drawSetup("DBO", 1, dch, dch - 2.0 * atr14)
+    alert(payload("DBO", "long", dch), alert.freq_once_per_bar_close)
+if ok and showDBO and dboShort and not dboShort[1]
+    drawSetup("DBO", -1, dcl, dcl + 2.0 * atr14)
+    alert(payload("DBO", "short", dcl), alert.freq_once_per_bar_close)
+
+plot(ema20,  "EMA 20",  color.new(color.orange, 20))
+plot(ema50,  "EMA 50",  color.new(color.blue, 30))
+plot(ema200, "EMA 200", color.new(color.gray, 0), 2)
+bgcolor(trend == 1 ? color.new(color.teal, 94) : trend == -1 ? color.new(color.red, 94) : na)

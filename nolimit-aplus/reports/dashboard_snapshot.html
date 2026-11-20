@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NO LIMIT A+++ Dashboard</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--ink:#17181c;--muted:#6a6d76;--line:#e3e1da;--accent:#1f5f4a;--good:#1a7f4e;--bad:#b3261e;--warn:#9a6700;--chip:#efede6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111316;--panel:#1a1d21;--ink:#ecebe6;--muted:#9a9da6;--line:#2b2f35;--accent:#6fcfab;--good:#5fd093;--bad:#ff8a80;--warn:#e3b341;--chip:#24282e}}
+:root[data-theme="dark"]{--bg:#111316;--panel:#1a1d21;--ink:#ecebe6;--muted:#9a9da6;--line:#2b2f35;--accent:#6fcfab;--good:#5fd093;--bad:#ff8a80;--warn:#e3b341;--chip:#24282e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font-size:20px;margin:0;letter-spacing:.04em}h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 8px}
+.sub{color:var(--muted);font-size:12px}.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.pill{font:600 11px var(--mono);padding:4px 8px;border-radius:4px;background:var(--chip);border:1px solid var(--line)}
+.pill.good{color:var(--good)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.warn{color:var(--warn)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.kpi .v{font:600 20px var(--mono);margin-top:4px}
+.kpi .n{font-size:11px;color:var(--muted);margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+th:first-child,td:first-child,td.t,th.t{text-align:left}td{font-family:var(--mono)}td.wrapc{white-space:normal;font-family:var(--sans);text-align:left;color:var(--muted);min-width:220px}
+tr:last-child td{border-bottom:0}.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.muted{color:var(--muted)}
+.empty{padding:18px;color:var(--muted)}.empty b{color:var(--ink)}
+.note{font-size:12px;color:var(--muted);margin:6px 2px}
+.grade{font-weight:700;color:var(--accent)}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <div><h1>NO LIMIT A+++</h1><div class="sub">Bitget trading intelligence &middot; dibuat 2026-11-20 22:24:23 UTC</div></div>
+  <div class="sub">Tanpa data terverifikasi = tanpa trade &middot; Tanpa edge tervalidasi = tanpa A+++ &middot; Tanpa kontrol risiko = tanpa eksekusi</div>
+</header>
+<div class="pills">
+  <span class="pill good">LIVE TRADING: DISABLED</span>
+  <span class="pill">MODE EKSEKUSI: PAPER</span>
+  <span class="pill good">KILL SWITCH: siaga</span>
+  <span class="pill good">API PUBLIK: OK 212 ms</span>
+  <span class="pill warn">KEY READ-ONLY: belum dipasang</span>
+  <span class="pill warn">KEY DEMO: belum dipasang</span>
+  <span class="pill good">DATABASE: sqlite</span>
+  
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">Total equity akun (produksi)</div>
+    <div class="v muted">belum diaudit</div><div class="n">pasang key read-only lalu jalankan <code>aplus audit</code></div></div>
+  <div class="kpi"><div class="l">Equity paper</div><div class="v">10,000.00</div><div class="n">tersedia 10,000.00</div></div>
+  <div class="kpi"><div class="l">Risiko terbuka</div><div class="v">0.0%</div><div class="n">batas 1.5% &middot; 0.00 USDT</div></div>
+  <div class="kpi"><div class="l">Leverage efektif portofolio</div><div class="v">0.0x</div><div class="n">batas 3.0x &middot; eksposur 0.00</div></div>
+  <div class="kpi"><div class="l">Drawdown dari puncak</div><div class="v ">0.0%</div><div class="n">hari +0.00% (batas -1.5%) &middot; minggu +0.00% (batas -4.0%)</div></div>
+  <div class="kpi"><div class="l">P&amp;L terealisasi / belum</div><div class="v">0.00 / 0.00</div><div class="n">0 trade selesai &middot; rata-rata -</div></div>
+</div>
+
+<h2>Kandidat A+++</h2>
+<div class="panel">
+<div class="empty"><b>Tidak ada kandidat A+++ saat ini.</b> Kandidat hanya muncul jika strategi lolos validasi out-of-sample dan forward, datanya segar, dan risk engine menyetujui. Lihat status validasi di bawah.</div>
+</div>
+
+<h2>Sinyal teknikal yang ditolak (bukan rekomendasi trade)</h2>
+<div class="panel">
+
+<table><tr><th>Simbol</th><th class="t">Arah</th><th class="t">Setup</th><th>Entry</th><th>Stop</th><th>TP1</th><th>TP2</th><th>OOS rata-rata</th><th class="t">Bar sinyal</th><th class="t">Alasan ditolak</th></tr>
+
+<tr><td>PEPEUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>0.000003</td><td>0.000004</td><td>0.000003</td><td>0.000002</td><td>-0.07R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>SUIUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>0.6354</td><td>0.6758</td><td>0.595</td><td>0.5141</td><td>-0.13R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>ENAUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>0.09608</td><td>0.10454</td><td>0.08762</td><td>0.07069</td><td>+0.13R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>DOGEUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>0.05275</td><td>0.05565</td><td>0.04985</td><td>0.04404</td><td>-0.08R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>EVAAUSDT</td><td class="t">LONG</td><td class="t">TPB 1H</td><td>5.9943</td><td>5.2883</td><td>6.7003</td><td>8.1123</td><td>+0.17R</td><td class="t">2026-11-20 21:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>GOOGLUSDT</td><td class="t">SHORT</td><td class="t">TPB 4H</td><td>269.76</td><td>284.86</td><td>254.66</td><td>224.45</td><td>-0.29R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>MMTUSDT</td><td class="t">LONG</td><td class="t">TPB 1H</td><td>0.2614</td><td>0.2435</td><td>0.2793</td><td>0.3152</td><td>-0.03R</td><td class="t">2026-11-20 21:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>INTCUSDT</td><td class="t">SHORT</td><td class="t">TPB 4H</td><td>52.39</td><td>57.06</td><td>47.72</td><td>38.39</td><td>-0.24R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>NEARUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>2.7945</td><td>3.0406</td><td>2.5484</td><td>2.0563</td><td>-0.18R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>KORUUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>4.878</td><td>5.809</td><td>3.947</td><td>2.086</td><td>-</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+
+<tr><td>ZECUSDT</td><td class="t">SHORT</td><td class="t">DBO 4H</td><td>745.2</td><td>817.85</td><td>672.55</td><td>527.26</td><td>-0.50R</td><td class="t">2026-11-20 16:00 UTC</td><td class="wrapc">edge_not_validated: REJECTED</td></tr>
+</table>
+
+</div>
+
+<h2>Trade paper &middot; fill aktual</h2>
+<div class="panel">
+<div class="empty">Belum ada trade paper. Tidak ada order yang dikirim tanpa kandidat yang disetujui.</div>
+</div>
+
+<h2>Audit akun produksi (read-only)</h2>
+<div class="panel">
+<div class="empty"><b>Belum ada angka terverifikasi.</b> Angka di tangkapan layar (IDR 148,9 jt / 93,8 jt / 4.478 USDT) bersifat historis dan tidak dipakai sistem. Pasang key read-only untuk audit.</div>
+</div>
+
+<h2>Bot yang berjalan &amp; kontribusinya</h2>
+<div class="panel">
+<div class="empty">Data bot belum terbaca. Saldo akun bot dibaca saat audit; hasil per bot butuh <code>APLUS_GRID_BOT_IDS</code>. Bot tidak pernah diubah oleh sistem.</div>
+</div>
+
+<h2>Status validasi strategi</h2>
+<div class="panel">
+
+<table><tr><th>Strategi</th><th class="t">TF</th><th class="t">Kelas aset</th><th>Simbol</th><th>Trade OOS</th><th>Rata2 OOS</th><th>Win</th><th>PF</th><th>CI95 bawah</th><th>Stres biaya</th><th>Kuartal +</th><th class="t">Status</th><th class="t">Gate gagal</th></tr>
+
+<tr><td>DBO</td><td class="t">1H</td><td class="t">commodity</td><td>6</td><td>195</td><td class="bad">-0.45R</td><td>41.0%</td><td>0.47</td><td>-0.82R</td><td>-0.91R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">1H</td><td class="t">crypto_alt</td><td>13</td><td>585</td><td class="good">+0.07R</td><td>57.0%</td><td>1.14</td><td>-0.06R</td><td>+0.00R</td><td>67.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">1H</td><td class="t">crypto_major</td><td>2</td><td>86</td><td class="good">+0.10R</td><td>60.0%</td><td>1.21</td><td>-0.17R</td><td>+0.03R</td><td>100.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_trades, oos_mean_r, profit_factor, ci_lower, is_sign, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">1H</td><td class="t">equity</td><td>20</td><td>651</td><td class="bad">-0.07R</td><td>52.0%</td><td>0.87</td><td>-0.26R</td><td>-0.26R</td><td>0.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">4H</td><td class="t">commodity</td><td>6</td><td>122</td><td class="good">+0.04R</td><td>57.0%</td><td>1.08</td><td>-0.25R</td><td>-0.10R</td><td>60.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, cost_stress, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">4H</td><td class="t">crypto_alt</td><td>11</td><td>363</td><td class="bad">-0.01R</td><td>53.0%</td><td>0.98</td><td>-0.20R</td><td>-0.04R</td><td>50.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">4H</td><td class="t">crypto_major</td><td>2</td><td>79</td><td class="bad">-0.06R</td><td>49.0%</td><td>0.9</td><td>-0.32R</td><td>-0.08R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_trades, oos_mean_r, profit_factor, ci_lower, cost_stress, quarter_stability, multiple_testing</td></tr>
+
+<tr><td>DBO</td><td class="t">4H</td><td class="t">equity</td><td>16</td><td>187</td><td class="bad">-0.12R</td><td>48.0%</td><td>0.79</td><td>-0.42R</td><td>-0.19R</td><td>67.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">1H</td><td class="t">commodity</td><td>6</td><td>521</td><td class="bad">-0.39R</td><td>42.0%</td><td>0.5</td><td>-0.54R</td><td>-0.71R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">1H</td><td class="t">crypto_alt</td><td>13</td><td>1256</td><td class="bad">-0.10R</td><td>49.0%</td><td>0.83</td><td>-0.20R</td><td>-0.17R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">1H</td><td class="t">crypto_major</td><td>2</td><td>213</td><td class="bad">-0.09R</td><td>51.0%</td><td>0.84</td><td>-0.22R</td><td>-0.16R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">1H</td><td class="t">equity</td><td>20</td><td>1365</td><td class="bad">-0.27R</td><td>43.0%</td><td>0.61</td><td>-0.40R</td><td>-0.46R</td><td>0.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">4H</td><td class="t">commodity</td><td>6</td><td>210</td><td class="good">+0.02R</td><td>59.0%</td><td>1.05</td><td>-0.16R</td><td>-0.12R</td><td>60.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">4H</td><td class="t">crypto_alt</td><td>11</td><td>689</td><td class="good">+0.00R</td><td>52.0%</td><td>1.01</td><td>-0.11R</td><td>-0.03R</td><td>50.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">4H</td><td class="t">crypto_major</td><td>2</td><td>165</td><td class="good">+0.01R</td><td>53.0%</td><td>1.02</td><td>-0.16R</td><td>-0.03R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, multiple_testing</td></tr>
+
+<tr><td>TPB</td><td class="t">4H</td><td class="t">equity</td><td>16</td><td>335</td><td class="bad">-0.10R</td><td>52.0%</td><td>0.82</td><td>-0.32R</td><td>-0.18R</td><td>33.0%</td><td class="t bad">REJECTED</td><td class="wrapc">oos_mean_r, profit_factor, ci_lower, is_sign, cost_stress, quarter_stability, max_drawdown, multiple_testing</td></tr>
+</table>
+<div class="note">Run 20261120T222228Z &middot; 16699 trade backtest &middot; 41 instrumen &middot; lolos: 0 pool, 0 simbol.</div>
+
+</div>
+
+<h2>Produk yang tidak dieksekusi sistem</h2>
+<div class="panel"><table><tr><td>TradFi CFD</td><td class="wrapc">Bitget documents a separate /api/v3/cfd/* family (own CFD account, symbols like XAUUSD.s). The audit READS the CFD account. It is excluded from scanning/execution: no Demo Trading coverage is documented and CFD orders have no clientOid, so duplicate-order prevention cannot be guaranteed.</td></tr><tr><td>Grid bots (spot/futures)</td><td class="wrapc">Bot detail needs a known botId (no list endpoint). The audit reads the bot account balance via /api/v2/account/bot-assets and per-bot results for botIds listed in APLUS_GRID_BOT_IDS. Bots are never modified.</td></tr><tr><td>Index / FX perps</td><td class="wrapc">Listed, but below the 24h turnover floor at the time of the scan.</td></tr></table></div>
+
+<h2>Konektivitas &amp; log</h2>
+<div class="panel"><table><tr><th>Komponen</th><th class="t">Status</th><th class="t">Terakhir</th></tr>
+<tr><td>scanner</td><td class="t good">ok</td><td class="t">2026-11-20T22:24:21</td></tr><tr><td>engine:paper</td><td class="t good">ok</td><td class="t">2026-11-20T22:24:22</td></tr></table></div>
+<div class="panel" style="margin-top:10px"><table><tr><th>Waktu</th><th class="t">Level</th><th class="t">Jenis</th><th class="t">Pesan</th></tr>
+</table></div>
+</div></body></html>

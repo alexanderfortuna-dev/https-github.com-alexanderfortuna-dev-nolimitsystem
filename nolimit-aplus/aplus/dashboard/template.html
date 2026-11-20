@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NO LIMIT A+++ Dashboard</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--ink:#17181c;--muted:#6a6d76;--line:#e3e1da;--accent:#1f5f4a;--good:#1a7f4e;--bad:#b3261e;--warn:#9a6700;--chip:#efede6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111316;--panel:#1a1d21;--ink:#ecebe6;--muted:#9a9da6;--line:#2b2f35;--accent:#6fcfab;--good:#5fd093;--bad:#ff8a80;--warn:#e3b341;--chip:#24282e}}
+:root[data-theme="dark"]{--bg:#111316;--panel:#1a1d21;--ink:#ecebe6;--muted:#9a9da6;--line:#2b2f35;--accent:#6fcfab;--good:#5fd093;--bad:#ff8a80;--warn:#e3b341;--chip:#24282e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font-size:20px;margin:0;letter-spacing:.04em}h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 8px}
+.sub{color:var(--muted);font-size:12px}.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.pill{font:600 11px var(--mono);padding:4px 8px;border-radius:4px;background:var(--chip);border:1px solid var(--line)}
+.pill.good{color:var(--good)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.warn{color:var(--warn)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.kpi .v{font:600 20px var(--mono);margin-top:4px}
+.kpi .n{font-size:11px;color:var(--muted);margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+th:first-child,td:first-child,td.t,th.t{text-align:left}td{font-family:var(--mono)}td.wrapc{white-space:normal;font-family:var(--sans);text-align:left;color:var(--muted);min-width:220px}
+tr:last-child td{border-bottom:0}.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}.muted{color:var(--muted)}
+.empty{padding:18px;color:var(--muted)}.empty b{color:var(--ink)}
+.note{font-size:12px;color:var(--muted);margin:6px 2px}
+.grade{font-weight:700;color:var(--accent)}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <div><h1>NO LIMIT A+++</h1><div class="sub">Bitget trading intelligence &middot; dibuat {{ generated }}</div></div>
+  <div class="sub">Tanpa data terverifikasi = tanpa trade &middot; Tanpa edge tervalidasi = tanpa A+++ &middot; Tanpa kontrol risiko = tanpa eksekusi</div>
+</header>
+<div class="pills">
+  <span class="pill {{ 'bad' if live_trading_enabled else 'good' }}">LIVE TRADING: {{ 'ENABLED' if live_trading_enabled else 'DISABLED' }}</span>
+  <span class="pill">MODE EKSEKUSI: {{ mode|upper }}</span>
+  <span class="pill {{ 'bad' if kill.active else 'good' }}">KILL SWITCH: {{ 'AKTIF - ' ~ kill.reason if kill.active else 'siaga' }}</span>
+  <span class="pill {{ 'good' if connectivity.public_api.ok else 'bad' }}">API PUBLIK: {{ 'OK ' ~ connectivity.public_api.latency_ms ~ ' ms' if connectivity.public_api.ok else 'GAGAL' }}</span>
+  <span class="pill {{ 'good' if connectivity.read_key.configured else 'warn' }}">KEY READ-ONLY: {{ 'terpasang' if connectivity.read_key.configured else 'belum dipasang' }}</span>
+  <span class="pill {{ 'good' if connectivity.demo_key.configured else 'warn' }}">KEY DEMO: {{ 'terpasang' if connectivity.demo_key.configured else 'belum dipasang' }}</span>
+  <span class="pill {{ 'good' if connectivity.store.ok else 'bad' }}">DATABASE: {{ connectivity.store.backend }}</span>
+  {% for b in exec.breakers %}<span class="pill bad">CIRCUIT BREAKER: {{ b }}</span>{% endfor %}
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">Total equity akun (produksi)</div>
+    {% if production %}<div class="v">{{ production.equity|usd }}</div><div class="n">USD &middot; audit {{ production.ts[:16] }}{% if not production.complete %} &middot; <span class="bad">TIDAK LENGKAP</span>{% endif %}</div>
+    {% else %}<div class="v muted">belum diaudit</div><div class="n">pasang key read-only lalu jalankan <code>aplus audit</code></div>{% endif %}</div>
+  <div class="kpi"><div class="l">Equity {{ mode }}</div><div class="v">{{ exec.equity|usd }}</div><div class="n">tersedia {{ exec.available|usd }}</div></div>
+  <div class="kpi"><div class="l">Risiko terbuka</div><div class="v">{{ (exec.open_risk_pct*100)|round(2) }}%</div><div class="n">batas {{ (limits.max_open_risk*100)|round(2) }}% &middot; {{ exec.open_risk|usd }} USDT</div></div>
+  <div class="kpi"><div class="l">Leverage efektif portofolio</div><div class="v">{{ exec.gross_lev|round(2) }}x</div><div class="n">batas {{ limits.max_gross_exposure }}x &middot; eksposur {{ exec.gross|usd }}</div></div>
+  <div class="kpi"><div class="l">Drawdown dari puncak</div><div class="v {{ 'bad' if exec.drawdown > 0.02 }}">{{ (exec.drawdown*100)|round(2) }}%</div><div class="n">hari {{ exec.day|pct }} (batas -{{ (limits.daily_loss_limit*100)|round(1) }}%) &middot; minggu {{ exec.week|pct }} (batas -{{ (limits.weekly_loss_limit*100)|round(1) }}%)</div></div>
+  <div class="kpi"><div class="l">P&amp;L terealisasi / belum</div><div class="v">{{ exec.realized|usd }} / {{ exec.unrealized|usd }}</div><div class="n">{{ exec.closed_n }} trade selesai &middot; rata-rata {{ exec.mean_r|r }}</div></div>
+</div>
+
+<h2>Kandidat A+++</h2>
+<div class="panel">
+{% if approved %}
+<table><tr><th>Simbol</th><th class="t">Arah</th><th class="t">Setup</th><th class="t">Grade</th><th>ENTRY</th><th>STOP LOSS</th><th>TAKE PROFIT 1</th><th>TAKE PROFIT 2</th><th>POSITION SIZE</th><th>EFFECTIVE LEVERAGE</th><th>Setelan lev.</th><th>Risiko</th><th>Net R:R</th><th class="t">Bar sinyal</th></tr>
+{% for c in approved %}{% set p = c.plan %}
+<tr><td>{{ c.symbol }}</td><td class="t {{ 'good' if c.side==1 else 'bad' }}">{{ 'LONG' if c.side==1 else 'SHORT' }}</td><td class="t">{{ c.strategy }} {{ c.interval }}</td><td class="t grade">{{ c.grade }}</td>
+<td>{{ p.entry|num(6) }}</td><td>{{ p.stop|num(6) }}</td><td>{{ p.tp1|num(6) }}</td><td>{{ p.tp2|num(6) }}</td><td>{{ p.qty|num(6) }} ({{ p.notional|usd }})</td><td>{{ p.effective_leverage|round(2) }}x</td><td>{{ p.exchange_leverage }}x iso</td><td>{{ (p.risk_pct*100)|round(2) }}%</td><td>{{ p.expected_net_rr|round(2) }}</td><td class="t">{{ c.signal_ts|ts }}</td></tr>
+{% endfor %}</table>
+{% else %}<div class="empty"><b>Tidak ada kandidat A+++ saat ini.</b> Kandidat hanya muncul jika strategi lolos validasi out-of-sample dan forward, datanya segar, dan risk engine menyetujui. Lihat status validasi di bawah.</div>{% endif %}
+</div>
+
+<h2>Sinyal teknikal yang ditolak (bukan rekomendasi trade)</h2>
+<div class="panel">
+{% if rejected %}
+<table><tr><th>Simbol</th><th class="t">Arah</th><th class="t">Setup</th><th>Entry</th><th>Stop</th><th>TP1</th><th>TP2</th><th>OOS rata-rata</th><th class="t">Bar sinyal</th><th class="t">Alasan ditolak</th></tr>
+{% for c in rejected %}{% set l = c.evidence.levels %}
+<tr><td>{{ c.symbol }}</td><td class="t">{{ 'LONG' if c.side==1 else 'SHORT' }}</td><td class="t">{{ c.strategy }} {{ c.interval }}</td><td>{{ l.entry|num(6) }}</td><td>{{ l.stop|num(6) }}</td><td>{{ l.tp1|num(6) }}</td><td>{{ l.tp2|num(6) }}</td><td>{{ c.evidence.backtest.oos_mean_r|r }}</td><td class="t">{{ c.signal_ts|ts }}</td><td class="wrapc">{{ c.reasons|join('; ') }}</td></tr>
+{% endfor %}</table>
+{% else %}<div class="empty">Belum ada sinyal dalam 3 hari terakhir. Jalankan <code>aplus scan</code>.</div>{% endif %}
+</div>
+
+<h2>Trade {{ mode }} &middot; fill aktual</h2>
+<div class="panel">
+{% if trades %}
+<table><tr><th>Simbol</th><th class="t">Arah</th><th class="t">Setup</th><th class="t">Status</th><th>Entry rencana</th><th>Fill aktual</th><th>Stop aktif</th><th>Qty terbuka</th><th>Terealisasi</th><th>Belum terealisasi</th><th>Biaya</th><th>Hasil</th><th class="t">Keluar</th></tr>
+{% for t in trades %}
+<tr><td>{{ t.symbol }}</td><td class="t">{{ 'LONG' if t.side==1 else 'SHORT' }}</td><td class="t">{{ t.strategy }} {{ t.interval }}</td><td class="t">{{ t.state }}</td><td>{{ t.plan.entry|num(6) }}</td><td>{{ t.entry_fill|num(6) }}</td><td>{{ t.stop_current|num(6) }}</td><td>{{ t.qty_open|num(6) }}</td><td class="{{ 'good' if t.realized_pnl>0 else 'bad' if t.realized_pnl<0 }}">{{ t.realized_pnl|usd }}</td><td>{{ t.unrealized|usd }}</td><td>{{ t.fees|usd }}</td><td>{{ t.net_r|r }}</td><td class="t">{{ t.exit_reason or '' }}</td></tr>
+{% endfor %}</table>
+{% else %}<div class="empty">Belum ada trade {{ mode }}. Tidak ada order yang dikirim tanpa kandidat yang disetujui.</div>{% endif %}
+</div>
+
+<h2>Audit akun produksi (read-only)</h2>
+<div class="panel">
+{% if production %}{% set d = production.detail %}
+<table><tr><th>Buku (dihitung sekali)</th><th>Nilai USD</th><th class="t">Keterangan</th></tr>
+{% for k, v in d.ledgers.items() %}<tr><td>{{ k }}</td><td>{{ v|usd if v is not none else 'tidak terbaca' }}</td><td class="wrapc">{{ {'unified':'Unified Trading Account: spot + margin futures + P&L belum terealisasi','funding':'Akun Funding','bots':'Akun bot (grid spot/futures)','cfd':'Akun TradFi CFD'}[k] }}</td></tr>{% endfor %}
+<tr><td><b>TOTAL</b></td><td><b>{{ production.equity|usd }}</b></td><td class="wrapc">USDT tersedia {{ production.available|usd }} &middot; kewajiban {{ production.liabilities|usd }} &middot; leverage efektif {{ d.effective_leverage|round(2) }}x{% if d.cross_check.overview_total_usdt %} &middot; cek silang overview bursa: selisih {{ d.cross_check.diff_pct|pct }}{% endif %}</td></tr></table>
+{% if d.positions %}<table><tr><th>Posisi futures</th><th class="t">Arah</th><th>Ukuran</th><th>Harga rata2</th><th>Mark</th><th>Notional</th><th>Setelan lev.</th><th class="t">Margin</th><th>uPnL</th><th>Likuidasi</th></tr>
+{% for p in d.positions %}<tr><td>{{ p.symbol }}</td><td class="t">{{ 'LONG' if p.side==1 else 'SHORT' }}</td><td>{{ p.size|num(6) }}</td><td>{{ p.avg_price|num(6) }}</td><td>{{ p.mark_price|num(6) }}</td><td>{{ p.notional|usd }}</td><td>{{ p.exchange_leverage|round(0) }}x</td><td class="t">{{ p.margin_mode }}</td><td>{{ p.unrealized_pnl|usd }}</td><td>{{ p.liquidation_price|num(6) }}</td></tr>{% endfor %}</table>{% endif %}
+{% if production.issues %}<div class="note warn">Catatan audit: {{ production.issues|join(' | ') }}</div>{% endif %}
+{% else %}<div class="empty"><b>Belum ada angka terverifikasi.</b> Angka di tangkapan layar (IDR 148,9 jt / 93,8 jt / 4.478 USDT) bersifat historis dan tidak dipakai sistem. Pasang key read-only untuk audit.</div>{% endif %}
+</div>
+
+<h2>Bot yang berjalan &amp; kontribusinya</h2>
+<div class="panel">
+{% if bots %}<table><tr><th>Bot</th><th class="t">Jenis</th><th>Modal (USDT)</th><th>P&amp;L (USDT)</th><th class="t">Sumber</th><th class="t">Catatan</th></tr>
+{% for b in bots %}<tr><td>{{ b.name }}</td><td class="t">{{ b.kind }}</td><td>{{ b.capital_usdt|usd }}</td><td>{{ b.pnl_usdt|usd }}</td><td class="t">{{ b.source }}</td><td class="t">{{ b.note }}</td></tr>{% endfor %}</table>
+{% else %}<div class="empty">Data bot belum terbaca. Saldo akun bot dibaca saat audit; hasil per bot butuh <code>APLUS_GRID_BOT_IDS</code>. Bot tidak pernah diubah oleh sistem.</div>{% endif %}
+</div>
+
+<h2>Status validasi strategi</h2>
+<div class="panel">
+{% if validation.pools %}
+<table><tr><th>Strategi</th><th class="t">TF</th><th class="t">Kelas aset</th><th>Simbol</th><th>Trade OOS</th><th>Rata2 OOS</th><th>Win</th><th>PF</th><th>CI95 bawah</th><th>Stres biaya</th><th>Kuartal +</th><th class="t">Status</th><th class="t">Gate gagal</th></tr>
+{% for p in validation.pools %}
+<tr><td>{{ p.strategy }}</td><td class="t">{{ p.interval }}</td><td class="t">{{ p.group }}</td><td>{{ p.symbols }}</td><td>{{ p.oos_trades }}</td><td class="{{ 'good' if p.oos_mean_r>0 else 'bad' }}">{{ p.oos_mean_r|r }}</td><td>{{ (p.oos_win_rate*100)|round(0) }}%</td><td>{{ p.oos_profit_factor|round(2) }}</td><td>{{ p.ci_low|r }}</td><td>{{ p.stress_mean_r|r }}</td><td>{{ (p.positive_quarters*100)|round(0) }}%</td><td class="t {{ 'bad' if p.status=='REJECTED' else 'good' }}">{{ p.status }}</td><td class="wrapc">{{ p.failed_gates|join(', ') }}</td></tr>
+{% endfor %}</table>
+<div class="note">Run {{ validation.run_id }} &middot; {{ validation.total_trades }} trade backtest &middot; {{ validation.universe_symbols }} instrumen &middot; lolos: {{ validation.pools_passed }} pool, {{ validation.symbols_passed }} simbol.</div>
+{% else %}<div class="empty">Belum ada hasil validasi. Jalankan <code>aplus validate</code>.</div>{% endif %}
+</div>
+
+<h2>Produk yang tidak dieksekusi sistem</h2>
+<div class="panel"><table>{% for k, v in unsupported.items() %}<tr><td>{{ k }}</td><td class="wrapc">{{ v }}</td></tr>{% endfor %}</table></div>
+
+<h2>Konektivitas &amp; log</h2>
+<div class="panel"><table><tr><th>Komponen</th><th class="t">Status</th><th class="t">Terakhir</th></tr>
+{% for h in heartbeats %}<tr><td>{{ h.component }}</td><td class="t {{ 'good' if h.status=='ok' else 'warn' }}">{{ h.status }}</td><td class="t">{{ h.ts[:19] }}</td></tr>{% endfor %}</table></div>
+<div class="panel" style="margin-top:10px"><table><tr><th>Waktu</th><th class="t">Level</th><th class="t">Jenis</th><th class="t">Pesan</th></tr>
+{% for e in events %}<tr><td>{{ e.ts[:19] }}</td><td class="t {{ 'bad' if e.level=='error' else 'warn' if e.level=='warning' }}">{{ e.level }}</td><td class="t">{{ e.kind }}</td><td class="wrapc">{{ e.message }}</td></tr>{% endfor %}</table></div>
+</div></body></html>

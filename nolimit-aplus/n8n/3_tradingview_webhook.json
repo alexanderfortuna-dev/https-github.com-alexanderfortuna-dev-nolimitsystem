@@ -1,0 +1,153 @@
+{
+  "name": "APLUS 3 - TradingView Webhook (context only)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aplus-tradingview",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "tv-webhook",
+      "name": "TradingView webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "aplus-tradingview",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "TradingView webhook secret"
+        }
+      },
+      "notes": "TradingView cannot send custom headers on all plans. If yours cannot, switch authentication to None and keep the secret check node below.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.body.secret }}",
+              "rightValue": "={{ $env.APLUS_TV_SECRET }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "secret-ok",
+      "name": "Secret ok",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/tv/alert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ symbol: $json.body.symbol, interval: $json.body.interval, strategy: $json.body.strategy, side: $json.body.side, price: $json.body.price, message: $json.body.message }) }}"
+      },
+      "id": "log-alert",
+      "name": "Log alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        -80
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=TradingView alert ditolak: secret salah.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rejected-alert",
+      "name": "Rejected alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        120
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "TradingView webhook": {
+      "main": [
+        [
+          {
+            "node": "Secret ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Secret ok": {
+      "main": [
+        [
+          {
+            "node": "Log alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,419 @@
+{
+  "name": "APLUS 1 - Scan & Execute (paper/demo only)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "every-15-min",
+      "name": "Every 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/run/scan",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"execute\": true}"
+      },
+      "id": "run-scan",
+      "name": "Run scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.approved.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "any-approved",
+      "name": "Any approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++: {{ $json.approved.length }} kandidat disetujui (paper/demo): {{ $json.approved.join(', ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "notify-candidates",
+      "name": "Notify candidates",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        -80
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++: SCAN GAGAL - tidak ada entry baru yang dikirim. Periksa engine.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "scan-failed",
+      "name": "Scan failed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        200
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "every-minute",
+      "name": "Every minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/run/tick",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}"
+      },
+      "id": "engine-tick",
+      "name": "Engine tick",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++: ENGINE TICK GAGAL - periksa proses aplus serve.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tick-failed",
+      "name": "Tick failed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        520
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "every-hour",
+      "name": "Every hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APLUS_API_URL || \"http://127.0.0.1:8787\" }}/run/reconcile",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}"
+      },
+      "id": "reconcile",
+      "name": "Reconcile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        700
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "APLUS control API (Bearer token)"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.findings.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "has-findings",
+      "name": "Has findings",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "alert",
+              "value": "=NO LIMIT A+++ rekonsiliasi: {{ $json.findings.join(' | ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "reconcile-findings",
+      "name": "Reconcile findings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        640
+      ],
+      "notes": "Connect this node to your notifier (Telegram / WhatsApp / email). The text is in {{$json.alert}}. Never include API keys in messages.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Every 15 min": {
+      "main": [
+        [
+          {
+            "node": "Run scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run scan": {
+      "main": [
+        [
+          {
+            "node": "Any approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scan failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any approved": {
+      "main": [
+        [
+          {
+            "node": "Notify candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every minute": {
+      "main": [
+        [
+          {
+            "node": "Engine tick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Engine tick": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Tick failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every hour": {
+      "main": [
+        [
+          {
+            "node": "Reconcile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile": {
+      "main": [
+        [
+          {
+            "node": "Has findings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has findings": {
+      "main": [
+        [
+          {
+            "node": "Reconcile findings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
