@@ -1,0 +1,57 @@
+//@version=5
+// NO LIMIT - TRX LONG (simple). Chart: Bitget perp, timeframe 4H.
+// Shows exactly four things: the BUY level, the STOP, the TRAILING EXIT, and whether the trend allows a trade.
+// Rules = docs/PREREG_TRX.md, long side only. This draws levels; it does not prove profit and does not place orders.
+indicator("NO LIMIT TRX Long (simple)", shorttitle="TRX Long", overlay=true)
+
+riskPct = input.float(0.5, "Risk per trade (% of equity)", minval=0.1, maxval=2.0, step=0.1)
+equity  = input.float(1000, "Account equity (USDT)", minval=1)
+
+ema50  = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
+ema300 = ta.ema(close, 300)
+atr    = ta.atr(14)
+hi55   = ta.highest(high, 55)
+
+trendOk = ema50 > ema200 and close > ema200 and close > ema300
+ready   = trendOk and close < hi55 and hi55 - close <= atr      // armed: place a buy-stop at hi55 for the next bar
+
+buyLvl  = hi55
+stopLvl = hi55 - 2.0 * atr
+qty     = equity * riskPct / 100 / (2.0 * atr)
+
+// trailing exit for an open long: highest high since the breakout bar minus 3 ATR, never moving down
+var float trail = na
+var bool  inPos = false
+broke = ready[1] and high >= buyLvl[1]
+if not inPos and broke
+    inPos := true
+    trail := stopLvl[1]
+if inPos
+    if low <= trail
+        inPos := false
+        trail := na
+    else
+        trail := math.max(trail, ta.highest(high, 180) - 3.0 * atr)
+
+plot(ready ? buyLvl : na,  "BUY-STOP level", color.new(color.teal, 0), 2, plot.style_linebr)
+plot(ready ? stopLvl : na, "Initial STOP",   color.new(color.red, 0),  2, plot.style_linebr)
+plot(inPos ? trail : na,   "Trailing EXIT",  color.new(color.orange, 0), 2, plot.style_linebr)
+plot(ema200, "EMA 200", color.new(color.gray, 30))
+bgcolor(trendOk ? color.new(color.teal, 93) : na, title="Trend allows longs")
+
+var table t = table.new(position.top_right, 2, 5, bgcolor=color.new(color.black, 80), border_width=1)
+if barstate.islast
+    table.cell(t, 0, 0, "STATUS", text_color=color.white)
+    table.cell(t, 1, 0, inPos ? "IN TRADE - trail the stop" : ready ? "READY - place buy-stop" : trendOk ? "WAIT - not near the high" : "NO TRADE - trend down", text_color=color.white)
+    table.cell(t, 0, 1, "BUY-STOP", text_color=color.white)
+    table.cell(t, 1, 1, ready ? str.tostring(buyLvl, format.mintick) : "-", text_color=color.white)
+    table.cell(t, 0, 2, "STOP", text_color=color.white)
+    table.cell(t, 1, 2, inPos ? str.tostring(trail, format.mintick) : ready ? str.tostring(stopLvl, format.mintick) : "-", text_color=color.white)
+    table.cell(t, 0, 3, "SIZE", text_color=color.white)
+    table.cell(t, 1, 3, ready ? str.tostring(qty, "#.####") : "-", text_color=color.white)
+    table.cell(t, 0, 4, "RISK", text_color=color.white)
+    table.cell(t, 1, 4, str.tostring(equity * riskPct / 100, "#.##") + " USDT", text_color=color.white)
+
+alertcondition(ready and not ready[1], "TRX Long READY", "TRX Long READY on {{ticker}}: place buy-stop at the 55-bar high, stop 2 ATR below.")
+alertcondition(inPos and not inPos[1], "TRX Long ENTERED", "TRX Long entered on {{ticker}}. Trail the stop each 4H close.")
