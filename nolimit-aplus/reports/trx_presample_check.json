@@ -1,0 +1,90 @@
+{
+ "what": "TRX on 4H crypto data OLDER than the validation window (never used before)",
+ "symbols": [
+  "BTCUSDT",
+  "DOGEUSDT",
+  "ETHUSDT",
+  "NEARUSDT",
+  "PEPEUSDT",
+  "SOLUSDT",
+  "SUIUSDT",
+  "XRPUSDT"
+ ],
+ "period": [
+  "2021-01-01",
+  "2023-11-16"
+ ],
+ "trades": 479,
+ "mean_r": 0.092,
+ "win_rate": 0.357,
+ "profit_factor": 1.18,
+ "total_r": 44.0,
+ "max_dd_r": 32.9,
+ "ci95": [
+  -0.122,
+  0.32
+ ],
+ "p_value": 0.2126,
+ "stress_mean_r": 0.073,
+ "by_side": {
+  "-1": [
+   264,
+   0.035
+  ],
+  "1": [
+   215,
+   0.162
+  ]
+ },
+ "by_year": {
+  "2021": [
+   132,
+   -5.0
+  ],
+  "2022": [
+   181,
+   15.6
+  ],
+  "2023": [
+   166,
+   33.4
+  ]
+ },
+ "by_symbol": {
+  "BTCUSDT": [
+   87,
+   0.18
+  ],
+  "DOGEUSDT": [
+   65,
+   -0.1
+  ],
+  "ETHUSDT": [
+   96,
+   0.07
+  ],
+  "NEARUSDT": [
+   60,
+   0.02
+  ],
+  "PEPEUSDT": [
+   11,
+   -0.23
+  ],
+  "SOLUSDT": [
+   73,
+   0.27
+  ],
+  "SUIUSDT": [
+   13,
+   -0.19
+  ],
+  "XRPUSDT": [
+   74,
+   0.15
+  ]
+ },
+ "share_wins_over_3R": 0.052,
+ "best_trade_r": 16.9,
+ "longest_losing_streak": 14
+}
