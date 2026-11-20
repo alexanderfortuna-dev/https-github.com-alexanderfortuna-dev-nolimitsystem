@@ -78,6 +78,7 @@ def simulate(symbol: str, interval: str, df: pd.DataFrame, setups: list[Setup], 
     fs = funding_signed if funding_signed is not None else np.zeros(n)
     fu = funding_unknown if funding_unknown is not None else np.zeros(n)
     tick = cost.price_tick
+    atr = df["atr14"].to_numpy() if "atr14" in df else np.zeros(n)
     trades: list[Trade] = []
     busy_until = -1                       # index of the bar in which the open trade exits
 
@@ -119,7 +120,29 @@ def simulate(symbol: str, interval: str, df: pd.DataFrame, setups: list[Setup], 
             return px * (1 - side * cost.slippage * cost.stop_slippage_mult)
 
         j = entry_i
-        while True:
+        best = raw                        # best price since entry (trailing mode)
+        while su.exit_mode == "trail":
+            # stop level in force during bar j was fixed at the close of bar j-1 (no look-ahead)
+            if (l[j] <= stop) if side == 1 else (h[j] >= stop):
+                px = stop_fill(j, stop)
+                pnl += (px - entry) * side
+                fees += px * cost.taker_fee
+                reason = "stop" if stop == stop0 else "trail_stop"
+                exit_i = j
+                break
+            funding += c[j] * (side * fs[j] + fu[j])
+            if j - entry_i + 1 >= su.max_hold or j + 1 >= n:
+                px = c[j] * (1 - side * cost.slippage)
+                pnl += (px - entry) * side
+                fees += px * cost.taker_fee
+                reason = "time_exit" if j + 1 < n else "end_of_data"
+                exit_i = j
+                break
+            best = max(best, h[j]) if side == 1 else min(best, l[j])
+            trail = best - side * su.trail_mult * atr[j]
+            stop = max(stop, trail) if side == 1 else min(stop, trail)
+            j += 1
+        while su.exit_mode != "trail":
             hit_stop = (l[j] <= stop) if side == 1 else (h[j] >= stop)
             if hit_stop:
                 px = stop_fill(j, stop)

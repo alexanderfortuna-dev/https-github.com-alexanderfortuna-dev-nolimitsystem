@@ -32,10 +32,13 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["ema20"] = ema(out["close"], 20)
     out["ema50"] = ema(out["close"], 50)
     out["ema200"] = ema(out["close"], 200)
+    out["ema300"] = ema(out["close"], 300)
     out["atr14"] = atr(out, 14)
     out["atr100"] = atr(out, 100)
     out["dc_high20"] = donchian_high(out, 20)
     out["dc_low20"] = donchian_low(out, 20)
+    out["dc_high55"] = donchian_high(out, 55)
+    out["dc_low55"] = donchian_low(out, 55)
     out["ll3"] = out["low"].rolling(3, min_periods=3).min()
     out["hh3"] = out["high"].rolling(3, min_periods=3).max()
     out["trend"] = np.where((out["ema50"] > out["ema200"]) & (out["close"] > out["ema200"]), 1,

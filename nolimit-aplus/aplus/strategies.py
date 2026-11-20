@@ -18,7 +18,7 @@ TP1_R = 1.0
 TP2_R = 3.0
 TP1_FRACTION = 0.5
 MAX_HOLD_BARS = 60
-WARMUP_BARS = 210
+WARMUP_BARS = 300
 
 
 @dataclass(frozen=True)
@@ -30,6 +30,9 @@ class Setup:
     trigger: float
     stop: float
     valid_bars: int
+    exit_mode: str = "targets"      # "targets" (TP1/TP2) or "trail" (chandelier trailing stop, no fixed target)
+    trail_mult: float = 0.0         # ATR multiple for the trailing stop
+    max_hold: int = MAX_HOLD_BARS
 
     @property
     def risk_per_unit(self) -> float:
@@ -45,7 +48,7 @@ class Setup:
 
 
 def _mk(strategy: str, df: pd.DataFrame, mask: np.ndarray, side: int, trigger: np.ndarray, stop: np.ndarray,
-        valid_bars: int) -> list[Setup]:
+        valid_bars: int, **kw) -> list[Setup]:
     atr = df["atr14"].to_numpy()
     out = []
     for i in np.flatnonzero(mask):
@@ -59,7 +62,7 @@ def _mk(strategy: str, df: pd.DataFrame, mask: np.ndarray, side: int, trigger: n
             continue
         if t - side * TP2_R * dist <= 0 or dist / t > 0.25:   # target must be a real price; stop never wider than 25%
             continue
-        out.append(Setup(strategy, int(i), int(df["ts"].iloc[i]), side, t, s, valid_bars))
+        out.append(Setup(strategy, int(i), int(df["ts"].iloc[i]), side, t, s, valid_bars, **kw))
     return out
 
 
@@ -93,7 +96,23 @@ def donchian_breakout(df: pd.DataFrame) -> list[Setup]:
     return sorted(longs + shorts, key=lambda s: s.bar_index)
 
 
-STRATEGIES = {"TPB": trend_pullback, "DBO": donchian_breakout}
+def trend_runner(df: pd.DataFrame) -> list[Setup]:
+    """TRX: few trades, large winners. 55-bar breakout with the 4H trend and the ~50-day average,
+    2 ATR initial stop, 3 ATR chandelier trailing stop, no fixed target. Rules pre-registered in
+    docs/PREREG_TRX.md before the first test."""
+    c = df["close"].to_numpy()
+    atr, trend, ema300 = df["atr14"].to_numpy(), df["trend"].to_numpy(), df["ema300"].to_numpy()
+    dch, dcl = df["dc_high55"].to_numpy(), df["dc_low55"].to_numpy()
+    long_m = (trend == 1) & (c > ema300) & (c < dch) & (dch - c <= 1.0 * atr)
+    short_m = (trend == -1) & (c < ema300) & (c > dcl) & (c - dcl <= 1.0 * atr)
+    kw = dict(exit_mode="trail", trail_mult=3.0, max_hold=180)
+    longs = _mk("TRX", df, long_m, 1, dch, dch - 2.0 * atr, 1, **kw)
+    shorts = _mk("TRX", df, short_m, -1, dcl, dcl + 2.0 * atr, 1, **kw)
+    return sorted(longs + shorts, key=lambda s: s.bar_index)
+
+
+STRATEGIES = {"TPB": trend_pullback, "DBO": donchian_breakout, "TRX": trend_runner}
+STRATEGY_INTERVALS = {"TPB": ("4H", "1H"), "DBO": ("4H", "1H"), "TRX": ("4H",)}
 
 
 def generate_setups(candles: pd.DataFrame, strategy: str) -> tuple[pd.DataFrame, list[Setup]]:

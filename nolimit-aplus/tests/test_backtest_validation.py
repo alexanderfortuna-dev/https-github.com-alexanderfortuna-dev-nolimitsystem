@@ -201,3 +201,25 @@ def test_setups_always_have_reachable_targets(strategy):
     _, setups = generate_setups(df, strategy)
     for s in setups:
         assert s.tp1 > 0 and s.tp2 > 0 and abs(s.trigger - s.stop) / s.trigger <= 0.25
+
+
+def test_trailing_exit_lets_winner_run_and_uses_previous_bar_stop():
+    rows = [(99, 99.5, 98.5, 99), (99, 101, 99, 100.5), (100.5, 110, 100.2, 109), (109, 120, 108, 119),
+            (119, 130, 118, 129), (129, 131, 121, 122), (122, 123, 110, 111), (111, 112, 110, 111)]
+    df = bars(rows); df["atr14"] = 2.0
+    su = Setup("TRX", 0, 0, 1, 100.0, 96.0, 1, exit_mode="trail", trail_mult=3.0, max_hold=180)
+    t = simulate("X", "4H", df, [su], FREE)[0]
+    # after bar 4 (high 130) the stop is 130 - 6 = 124; bar 5 trades down to 121 -> exit at 124
+    assert t.exit_reason == "trail_stop" and t.net_r == pytest.approx((124 - 100) / 4)
+    # initial stop on the entry bar is still honoured pessimistically
+    rows2 = [(99, 99.5, 98.5, 99), (99, 101, 95, 100.5), (100, 101, 99, 100)]
+    df2 = bars(rows2); df2["atr14"] = 2.0
+    assert simulate("X", "4H", df2, [su], FREE)[0].net_r == pytest.approx(-1.0)
+
+
+def test_trx_is_causal():
+    df = random_walk(2500, seed=11)
+    _, full = generate_setups(df, "TRX")
+    alt = df.copy(); alt.loc[2000:, ["open", "high", "low", "close"]] *= 2.0
+    _, a = generate_setups(alt, "TRX")
+    assert [s for s in full if s.bar_index < 2000] == [s for s in a if s.bar_index < 2000] and len(full) > 3

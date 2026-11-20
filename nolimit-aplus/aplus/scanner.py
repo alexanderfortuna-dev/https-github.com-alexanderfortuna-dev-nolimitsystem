@@ -20,13 +20,13 @@ from .config import RiskLimits
 from .data import INTERVAL_MS, _to_df, assert_fresh, drop_unclosed, quality_report
 from .risk import AccountState, RiskEngine
 from .store import Store, now_iso
-from .strategies import STRATEGIES, generate_setups
+from .strategies import STRATEGIES, STRATEGY_INTERVALS, generate_setups
 from .universe import UniverseMember
 from .validation import OOS_PASSED, REJECTED, VALIDATED
 
 log = logging.getLogger("aplus.scanner")
 SCAN_INTERVALS = ("4H", "1H")
-SCAN_BARS = 400
+SCAN_BARS = 1000
 
 
 def load_validation(report_dir: Path) -> dict[tuple[str, str, str], dict]:
@@ -53,7 +53,7 @@ def scan(client: BitgetClient, universe: list[UniverseMember], risk: RiskEngine,
                 raw = client.candles(inst.symbol, interval, limit=SCAN_BARS)
                 candles = drop_unclosed(_to_df(raw).sort_values("ts").reset_index(drop=True), interval, now)
                 q = quality_report(candles, interval)
-                if not q["ok"] or q["bars"] < 250:
+                if not q["ok"] or q["bars"] < 400:
                     raise StaleDataError(f"quality: {q.get('reason') or 'too few bars'} ({q['bars']} bars)")
                 assert_fresh(candles, interval, now, limits.max_data_age_bars)
             except Exception as exc:  # noqa: BLE001 - no verified data -> no candidate
@@ -61,6 +61,8 @@ def scan(client: BitgetClient, universe: list[UniverseMember], risk: RiskEngine,
                 continue
             last_i = len(candles) - 1
             for strat in STRATEGIES:
+                if interval not in STRATEGY_INTERVALS[strat]:
+                    continue
                 _, setups = generate_setups(candles, strat)
                 for su in (s for s in setups if s.bar_index == last_i):
                     t = client.tickers("USDT-FUTURES", inst.symbol)[0]

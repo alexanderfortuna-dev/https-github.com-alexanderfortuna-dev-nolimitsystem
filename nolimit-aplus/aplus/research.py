@@ -12,7 +12,7 @@ import pandas as pd
 from .backtest import CostModel, simulate, slippage_for, trades_frame
 from .bitget.client import BitgetClient
 from .data import fetch_candles, fetch_funding_history, funding_per_bar, quality_report
-from .strategies import STRATEGIES, generate_setups
+from .strategies import STRATEGIES, STRATEGY_INTERVALS, generate_setups
 from .universe import UniverseMember, build_universe
 
 log = logging.getLogger("aplus.research")
@@ -65,6 +65,8 @@ def run_backtests(client: BitgetClient, universe: list[UniverseMember], data_dir
                 continue
             fs, fu = funding_per_bar(candles, funding, interval, inst.funding_interval_h)
             for strat in STRATEGIES:
+                if interval not in STRATEGY_INTERVALS[strat]:
+                    continue
                 df, setups = generate_setups(candles, strat)
                 tr = trades_frame(simulate(inst.symbol, interval, df, setups, cost, fs, fu))
                 if len(tr):
