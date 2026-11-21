@@ -111,8 +111,24 @@ def trend_runner(df: pd.DataFrame) -> list[Setup]:
     return sorted(longs + shorts, key=lambda s: s.bar_index)
 
 
-STRATEGIES = {"TPB": trend_pullback, "DBO": donchian_breakout, "TRX": trend_runner}
-STRATEGY_INTERVALS = {"TPB": ("4H", "1H"), "DBO": ("4H", "1H"), "TRX": ("4H",)}
+def capitulation_reversal(df: pd.DataFrame) -> list[Setup]:
+    """CAP: counter-trend reversal after a 3-ATR extension from the EMA20. Pre-registered in docs/PREREG_CAP.md."""
+    c, o, h, l = (df[k].to_numpy() for k in ("close", "open", "high", "low"))
+    ema20, atr = df["ema20"].to_numpy(), df["atr14"].to_numpy()
+    with np.errstate(invalid="ignore", divide="ignore"):
+        ext_lo = pd.Series((l - ema20) / atr).rolling(3, min_periods=3).min().to_numpy()
+        ext_hi = pd.Series((h - ema20) / atr).rolling(3, min_periods=3).max().to_numpy()
+    pc = np.roll(c, 1)
+    long_m = (ext_lo <= -3.0) & (c > o) & (c > pc)
+    short_m = (ext_hi >= 3.0) & (c < o) & (c < pc)
+    long_m[0] = short_m[0] = False
+    longs = _mk("CAP", df, long_m, 1, h, df["ll3"].to_numpy() - 0.25 * atr, 1)
+    shorts = _mk("CAP", df, short_m, -1, l, df["hh3"].to_numpy() + 0.25 * atr, 1)
+    return sorted(longs + shorts, key=lambda s: s.bar_index)
+
+
+STRATEGIES = {"TPB": trend_pullback, "DBO": donchian_breakout, "TRX": trend_runner, "CAP": capitulation_reversal}
+STRATEGY_INTERVALS = {"TPB": ("4H", "1H"), "DBO": ("4H", "1H"), "TRX": ("4H",), "CAP": ("4H",)}
 
 
 def generate_setups(candles: pd.DataFrame, strategy: str) -> tuple[pd.DataFrame, list[Setup]]:
