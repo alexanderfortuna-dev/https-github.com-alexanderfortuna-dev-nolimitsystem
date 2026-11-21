@@ -3,18 +3,103 @@
   "updated": "2026-11-20",
   "source": "Bitget USDT-FUTURES candles, runs recorded in the nolimit-aplus repository (reports/validation_summary.json, reports/trxa_check.json)",
   "strategies": [
-    {"id": "TPB", "name": "Trend pullback", "timeframes": ["4H", "1H"], "status": "REJECTED",
-     "evidence": {"pools_tested": 8, "pools_passed": 0, "typical_oos_net_r": -0.10}, "note": "Negative after costs in most asset groups."},
-    {"id": "DBO", "name": "Donchian 20 breakout", "timeframes": ["4H", "1H"], "status": "REJECTED",
-     "evidence": {"pools_tested": 8, "pools_passed": 0, "typical_oos_net_r": 0.0}, "note": "Indistinguishable from zero after costs."},
-    {"id": "TRX", "name": "Trend runner: 55-bar breakout, 2 ATR stop, 3 ATR trailing exit", "timeframes": ["4H"],
-     "status": "RESEARCH_CANDIDATE", "asset_groups": ["crypto"],
-     "evidence": {"trades": 1424, "period": "2021-01..2026-11", "net_r": 0.156, "win_rate": 0.372, "profit_factor": 1.31,
-                  "ci95": [0.02, 0.301], "p_value": 0.013, "long_net_r": 0.276, "short_net_r": 0.043,
-                  "longest_losing_streak": 24},
-     "note": "Positive in every sub-period; the edge is on the long side. Pooled result was computed after earlier looks at parts of the data and does not clear the multiple-testing threshold. Forward evidence: 0 trades. Paper only."},
-    {"id": "TRX-A", "name": "TRX plus multi-timeframe alignment and relative-strength filter", "timeframes": ["4H"],
-     "status": "REJECTED", "evidence": {"trades": 467, "net_r": 0.114, "ci95": [-0.071, 0.306], "short_net_r": -0.127},
-     "note": "The alignment filter did not improve on TRX; aligned shorts lost money."}
+    {
+      "id": "TPB",
+      "name": "Trend pullback",
+      "timeframes": [
+        "4H",
+        "1H"
+      ],
+      "status": "REJECTED",
+      "evidence": {
+        "pools_tested": 8,
+        "pools_passed": 0,
+        "typical_oos_net_r": -0.1
+      },
+      "note": "Negative after costs in most asset groups.",
+      "exit": {
+        "mode": "targets",
+        "tp1_r": 1.0,
+        "tp2_r": 3.0
+      }
+    },
+    {
+      "id": "DBO",
+      "name": "Donchian 20 breakout",
+      "timeframes": [
+        "4H",
+        "1H"
+      ],
+      "status": "REJECTED",
+      "evidence": {
+        "pools_tested": 8,
+        "pools_passed": 0,
+        "typical_oos_net_r": 0.0
+      },
+      "note": "Indistinguishable from zero after costs.",
+      "exit": {
+        "mode": "targets",
+        "tp1_r": 1.0,
+        "tp2_r": 3.0,
+        "trigger": "20-bar high/low stop-entry, valid 1 bar"
+      }
+    },
+    {
+      "id": "TRX",
+      "name": "Trend runner: 55-bar breakout, 2 ATR stop, 3 ATR trailing exit",
+      "timeframes": [
+        "4H"
+      ],
+      "status": "RESEARCH_CANDIDATE",
+      "asset_groups": [
+        "crypto"
+      ],
+      "evidence": {
+        "trades": 1424,
+        "period": "2021-01..2026-11",
+        "net_r": 0.156,
+        "win_rate": 0.372,
+        "profit_factor": 1.31,
+        "ci95": [
+          0.02,
+          0.301
+        ],
+        "p_value": 0.013,
+        "long_net_r": 0.276,
+        "short_net_r": 0.043,
+        "longest_losing_streak": 24
+      },
+      "note": "Positive in every sub-period; the edge is on the long side. Pooled result was computed after earlier looks at parts of the data and does not clear the multiple-testing threshold. Forward evidence: 0 trades. Paper only. Short side: +0.04R over 734 trades, treated as no edge.",
+      "direction_status": {
+        "long": "RESEARCH_CANDIDATE",
+        "short": "REJECTED"
+      },
+      "exit": {
+        "mode": "trail",
+        "initial_stop_atr": 2.0,
+        "trail_atr": 3.0,
+        "max_hold_bars": 180,
+        "trigger": "55-bar high/low stop-entry, valid 1 bar",
+        "timeframe": "4H"
+      }
+    },
+    {
+      "id": "TRX-A",
+      "name": "TRX plus multi-timeframe alignment and relative-strength filter",
+      "timeframes": [
+        "4H"
+      ],
+      "status": "REJECTED",
+      "evidence": {
+        "trades": 467,
+        "net_r": 0.114,
+        "ci95": [
+          -0.071,
+          0.306
+        ],
+        "short_net_r": -0.127
+      },
+      "note": "The alignment filter did not improve on TRX; aligned shorts lost money."
+    }
   ]
 }

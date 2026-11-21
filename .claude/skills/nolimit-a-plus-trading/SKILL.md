@@ -22,10 +22,10 @@ Follow the steps in order. Each script prints JSON and exits non-zero when its g
 
 1. **Get market data from the execution venue.** Read `references/market-data-policy.md`, then run
    `python scripts/validate_market_data.py --fetch-bitget <SYMBOL>` (or pass a snapshot JSON built from connector output). Status must be `VERIFIED`. Otherwise the decision is `INSUFFICIENT DATA`.
-2. **Analyse structure.** Follow `references/setup-validation.md` for the multi-timeframe read, the entry trigger and the invalidation level. Add derivatives context with `references/derivatives-analysis.md` and scheduled-event risk from the macro section of `references/setup-validation.md` when sources are available; say so when they are not.
+2. **Analyse structure.** Run `python scripts/analyze_market.py <SYMBOL> --style swing|day [--side long|short]`. It returns the regime per timeframe, live strategy triggers with entry and stop, funding, open interest, depth, and a `setup` object with the objective scores already filled in. Read `references/setup-validation.md` to interpret it and `references/derivatives-analysis.md` for the derivatives fields. Check scheduled events yourself with a sourced calendar and set `macro_event_risk`; leave it 0 when you could not check. If there is no live trigger for the direction the user wants, there is nothing to trade: the answer is NO TRADE, however strong the move looks.
 3. **Check the evidence.** Look the strategy up in `assets/strategy_registry.json`. For a new idea or a re-test, run `scripts/backtest_strategy.py` and read `references/quantitative-research.md` before interpreting it.
 4. **Check the account.** Read `references/portfolio-risk.md`; build the account JSON from an authorised read-only connection or from the owner's screenshots, then run `python scripts/evaluate_portfolio_risk.py account.json`. See `references/bitget-integration.md` for which Bitget view feeds which field.
-5. **Size the position.** `python scripts/calculate_position_size.py request.json`, explained in `references/position-sizing.md`.
+5. **Size the position.** `python scripts/calculate_position_size.py request.json`, explained in `references/position-sizing.md`. Pass `"exit_mode": "trail"` for trailing strategies. If equity was only stated by the user, pass `"equity_source": "user_stated"`: the size is then shown as indicative and the decision cannot be TRADE CANDIDATE.
 6. **Challenge it.** Answer the adversarial questions in `references/setup-validation.md` in writing. Any unanswered question is a veto.
 7. **Score and decide.** `python scripts/evaluate_setup.py setup.json`. Report with the template in `references/trade-output.md`, copying numbers from script output without rounding them differently.
 
@@ -37,8 +37,10 @@ For execution rules after a paper entry (stop handling, partial exits, reconcili
 |---|---|
 | TRADE CANDIDATE | Score >= 90, all seven gates pass, strategy is `VALIDATED`. Paper execution only. |
 | WAIT | Promising but unproven strategy, score below 90, conflicting signals, or trigger not reached. |
-| NO TRADE | Rejected or unknown strategy, failed liquidity or portfolio gate, circuit breaker, kill switch. |
-| INSUFFICIENT DATA | Stale, missing or conflicting data; unverified account state; a required source is unavailable. |
+| NO TRADE | Rejected or unknown strategy (including no evidence for this asset group or direction), no live trigger, failed liquidity or portfolio gate, circuit breaker, kill switch. |
+| INSUFFICIENT DATA | Stale, missing or conflicting market data; or everything else passes but the account state is not verified. |
+
+Requests like "short it now at market" or "use 50x" are answered with the same workflow. An entry without an objective trigger maps to no tested strategy, so it is NO TRADE; a requested leverage is honoured only when it is safer than the computed one.
 
 A score is a ranking of research quality. It is not a probability of winning, so never translate 95/100 into "95% chance".
 

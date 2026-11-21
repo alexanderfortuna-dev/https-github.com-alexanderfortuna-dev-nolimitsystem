@@ -40,7 +40,7 @@ def read_csv(path: str) -> list[dict]:
 
 
 def fetch_bitget(symbol: str, interval: str, bars: int) -> list[dict]:
-    step = {"1H": 3_600_000, "4H": 14_400_000, "1D": 86_400_000}[interval]
+    step = {"5m": 300_000, "15m": 900_000, "1H": 3_600_000, "4H": 14_400_000, "1D": 86_400_000}[interval]
     now = int(time.time() * 1000)
     end, seen = now, {}
     while len(seen) < bars:
@@ -53,9 +53,9 @@ def fetch_bitget(symbol: str, interval: str, bars: int) -> list[dict]:
         for d in data:
             seen[int(d[0])] = {"ts": float(d[0]), "open": float(d[1]), "high": float(d[2]), "low": float(d[3]), "close": float(d[4])}
         oldest = min(int(d[0]) for d in data)
-        if len(data) < 100 or oldest >= end:
+        if oldest >= end:                 # no progress: reached the first listed bar
             break
-        end = oldest
+        end = oldest                      # a short page is normal (each query spans at most 90 days)
         time.sleep(0.06)
     rows = [seen[k] for k in sorted(seen) if k + step <= now]      # closed bars only
     return rows[-bars:]

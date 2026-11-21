@@ -32,14 +32,24 @@ SCORE_THRESHOLD = 90
 REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "strategy_registry.json")
 
 
-def registry_status(strategy_id: str | None) -> tuple[str, dict]:
+def registry_status(strategy_id: str | None, asset_group: str | None = None, direction: str | None = None) -> tuple[str, dict]:
+    """Evidence status for this strategy IN THIS asset group AND direction. Evidence does not transfer:
+    a crypto result says nothing about gold, and a long-side edge says nothing about shorts."""
     try:
         reg = json.load(open(REGISTRY))
     except Exception:  # noqa: BLE001
         return "UNKNOWN", {}
     for s in reg.get("strategies", []):
         if s.get("id") == strategy_id:
-            return s.get("status", "UNKNOWN"), s
+            status = s.get("status", "UNKNOWN")
+            groups = s.get("asset_groups")
+            if groups and asset_group not in groups:
+                return "REJECTED", dict(s, scope_note=f"no evidence for asset group {asset_group!r}; tested on {groups}")
+            by_dir = s.get("direction_status") or {}
+            if direction in by_dir:
+                order = ["REJECTED", "UNKNOWN", "RESEARCH_CANDIDATE", "VALIDATED"]
+                status = min(status, by_dir[direction], key=lambda x: order.index(x) if x in order else 1)
+            return status, s
     return "UNKNOWN", {}
 
 
@@ -59,7 +69,7 @@ def evaluate(setup: dict) -> dict:
         breakdown[comp] = {"points": v, "max": cap}
         total += v
 
-    reg_status, reg_entry = registry_status(setup.get("strategy"))
+    reg_status, reg_entry = registry_status(setup.get("strategy"), setup.get("asset_group"), str(setup.get("direction", "")).lower() or None)
     gate_results = {}
     for g in GATES:
         v = gates.get(g)
@@ -88,16 +98,24 @@ def evaluate(setup: dict) -> dict:
     missing_scores = [c for c, b in breakdown.items() if b["points"] is None]
     score = round(total, 1)
 
-    if missing_scores or md is None or "data_quality_verified" in missing_gates:
-        decision = "INSUFFICIENT DATA"
-    elif "data_quality_verified" in failed_gates:
+    acct = setup.get("account_state_status")          # VERIFIED | USER_STATED | None
+    if acct != "VERIFIED":
+        if gate_results["portfolio_risk_acceptable"]:
+            problems.append(f"portfolio gate overridden: account state is {acct or 'missing'}, not VERIFIED")
+        gate_results["portfolio_risk_acceptable"] = False
+        failed_gates = [g for g, v in gate_results.items() if v is False]
+        missing_gates = [g for g, v in gate_results.items() if v is None]
+    soft = {"out_of_sample_evidence", "positive_net_expectancy", "adversarial_review_passed"}
+
+    # Order matters: unusable data first, then "is there any edge at all", then what is still missing.
+    if missing_scores or md is None or "data_quality_verified" in missing_gates + failed_gates:
         decision = "INSUFFICIENT DATA"
     elif reg_status in ("REJECTED", "UNKNOWN"):
         decision = "NO TRADE"
+    elif acct != "VERIFIED" and set(failed_gates + missing_gates) <= soft | {"portfolio_risk_acceptable"}:
+        decision = "INSUFFICIENT DATA"                 # everything else is fine; the account must be verified
     elif failed_gates or missing_gates:
-        # an unvalidated-but-promising strategy, or a setup that is not ready yet
-        decision = "WAIT" if set(failed_gates + missing_gates) <= {"out_of_sample_evidence", "positive_net_expectancy",
-                                                                    "adversarial_review_passed"} else "NO TRADE"
+        decision = "WAIT" if set(failed_gates + missing_gates) <= soft else "NO TRADE"
     elif score < SCORE_THRESHOLD or conflicts:
         decision = "WAIT"
     else:
@@ -108,6 +126,7 @@ def evaluate(setup: dict) -> dict:
         "score_is_not_a_probability": True,
         "preliminary_research_qualification": score >= SCORE_THRESHOLD and not missing_scores,
         "validation_status": reg_status, "strategy_evidence": reg_entry.get("evidence"),
+        "evidence_scope_note": reg_entry.get("scope_note"), "account_state_status": acct,
         "breakdown": breakdown, "gates": gate_results, "failed_gates": failed_gates, "missing_gates": missing_gates,
         "conflicting_signals": conflicts, "problems": problems,
         "executable": decision == "TRADE CANDIDATE",

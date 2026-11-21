@@ -21,7 +21,7 @@ REQUIRED = [
     *[f"references/{n}.md" for n in ("market-data-policy", "setup-validation", "quantitative-research", "derivatives-analysis",
                                       "position-sizing", "bitget-integration", "execution-protocol", "portfolio-risk", "trade-output")],
     *[f"scripts/{n}.py" for n in ("validate_market_data", "calculate_position_size", "evaluate_setup", "evaluate_portfolio_risk",
-                                   "backtest_strategy", "validate_skill")],
+                                   "backtest_strategy", "analyze_market", "validate_skill")],
     *[f"tests/{n}.py" for n in ("test_market_data", "test_position_sizing", "test_risk_limits", "test_no_trade")],
     "examples/valid_trade.json", "examples/rejected_trade.json",
 ]

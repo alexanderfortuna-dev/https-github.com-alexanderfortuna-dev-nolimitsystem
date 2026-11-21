@@ -1,6 +1,8 @@
 # Setup validation
 
 ## 1. Multi-timeframe read
+`scripts/analyze_market.py` produces this read from closed bars. Bitget history on new contracts can be short; when a timeframe lacks 200 bars the script says so and falls back to a weaker test. The weekly frame is built from daily bars and skipped below 60 weeks.
+
 | Style | Regime | Structure | Trigger | Timing |
 |---|---|---|---|---|
 | Swing | 1W | 1D | 4H | 1H |
@@ -32,7 +34,7 @@ A setup is valid only if a second person could place the same order from the des
 | Pullback in trend | EMA20 reclaim bar in an EMA50/200 trend | TPB |
 | Breakout and retest, failed-breakout reversal, mean reversion | Not yet specified and tested | none: research only |
 
-Check the status in `assets/strategy_registry.json`. Families without a registry entry can be analysed and backtested, never recommended.
+Exact triggers, stops and exits for each id are in the `exit` block of `assets/strategy_registry.json`, and `scripts/analyze_market.py` computes them live. Evidence is scoped: a result on crypto does not cover gold, and a long-side edge does not cover shorts (`asset_groups`, `direction_status`). Check the status in `assets/strategy_registry.json`. Families without a registry entry can be analysed and backtested, never recommended.
 
 ## 4. Macro and event risk
 Check, with source and time for each: central-bank decisions, CPI/PCE, employment data, Treasury yields and USD strength, exchange announcements for the instrument (delisting, funding or margin changes), and asset-specific catalysts (earnings for equity perpetuals, unlocks or upgrades for tokens). A high-impact event inside the expected holding window lowers `macro_event_risk` and usually means WAIT. State correlations as observations; do not assert causes you cannot support.

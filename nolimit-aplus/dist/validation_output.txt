@@ -1,0 +1,32 @@
+{
+  "status": "INSUFFICIENT_DATA",
+  "errors": [
+    "bitget fetch failed: OSError: network unreachable"
+  ],
+  "warnings": [],
+  "quotes": []
+}
+PASS  structure: required files present
+PASS  frontmatter: valid YAML
+PASS  frontmatter: parses, only name/description keys
+PASS  frontmatter: name is lowercase-hyphen, <= 64 chars, matches folder
+PASS  frontmatter: description 1..1024 chars, no angle brackets
+PASS  SKILL.md under 500 lines
+PASS  links: every referenced file exists
+PASS  links: every reference file is reachable from SKILL.md
+PASS  scripts: all compile
+PASS  safety: no credentials in any file
+PASS  safety: no order-placement or withdrawal calls in scripts
+PASS  example valid_trade: data VERIFIED
+PASS  example valid_trade: account may open
+PASS  example valid_trade: sizing matches the hand-checked plan
+PASS  example valid_trade: decision today is WAIT (no validated strategy)
+PASS  example rejected_trade: data not VERIFIED
+PASS  example rejected_trade: account blocked
+PASS  example rejected_trade: decision INSUFFICIENT DATA
+PASS  registry: statuses are valid
+PASS  unit tests: 37 passed, 0 failed
+PASS  cli: calculate_position_size.py exit code 0 and JSON output
+PASS  cli: evaluate_setup.py exit code 2 and JSON output
+
+22/22 checks passed. Skill valid: True

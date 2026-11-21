@@ -87,3 +87,14 @@ def test_rejections():
     c = dict(REQ["contract"]); del c["taker_fee"]
     assert "contract.taker_fee" in cps.size(req(contract=c))["reasons"][0]
     assert cps.size(req(entry=1.0, stop=1.4, side="short"))["reasons"][0].startswith("target_not_a_valid_price")
+
+
+def test_trailing_exit_has_no_fixed_targets_and_user_stated_equity_is_indicative():
+    p = cps.size(req(exit_mode="trail", trail_rule="3 ATR from the best price", equity_source="user_stated"))["plan"]
+    assert p["take_profit_1"] is None and p["take_profit_2"] is None and p["net_reward_risk"] is None
+    assert p["exit_mode"] == "trail" and p["tp2_size"] == p["position_size"] == 0.0712 and p["reference_3r_price"] == 61800.0
+    assert p["indicative_only"] and any("INDICATIVE" in n for n in p["notes"])
+    assert cps.size(REQ)["plan"]["indicative_only"] is False
+    # very wide stop on a short: trailing plan is still allowed, the 3R marker is simply absent
+    wide = cps.size(req(side="short", entry=1.0, stop=1.4, exit_mode="trail"))
+    assert wide["approved"] and wide["plan"]["reference_3r_price"] is None

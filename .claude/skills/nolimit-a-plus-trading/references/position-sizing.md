@@ -16,6 +16,12 @@ The setting is derived after sizing: the largest value, capped at 20x, that keep
 
 Worked example (verified by `tests/test_position_sizing.py`): equity 10,000 USDT, long BTCUSDT, entry 60,000, stop 59,400, taker 0.06%, slippage 0.02%. Loss per unit = (60,012 - 59,382.18) + (60,012 + 59,382.18) x 0.0006 = 701.4565. Quantity = 50 / 701.4565 = 0.0712 after rounding down. Notional 4,272 USDT, effective leverage 0.43x, setting 20x, margin 213.60, planned loss 49.94 USDT.
 
+## Equity source
+Sizing from verified account state (connector or fresh screenshots) is the only basis for an executable plan. When the user only states a number, size from it with `"equity_source": "user_stated"` so they get the figure they asked for, clearly marked indicative. Never size from old screenshots or remembered balances.
+
+## Trailing exits
+With `"exit_mode": "trail"` there are no TP1/TP2 and no fixed reward/risk. The plan reports the trailing rule and `reference_3r_price` only as a distance marker.
+
 ## Never
 - Average down, add to a loser, or use martingale sizing.
 - Widen a stop after entry.
