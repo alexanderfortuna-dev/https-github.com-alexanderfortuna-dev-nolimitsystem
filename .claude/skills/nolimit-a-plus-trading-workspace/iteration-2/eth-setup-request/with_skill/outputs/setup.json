@@ -1,0 +1,44 @@
+{
+ "pair": "ETHUSDT",
+ "direction": "short",
+ "strategy": "TRX",
+ "asset_group": "crypto",
+ "market_data_status": "VERIFIED",
+ "account_state_status": "UNVERIFIED",
+ "entry": 1579.72,
+ "stop": 1671.7535390291064,
+ "invalidation": "price reaches 1671.7535390291064 (stop), or the trigger is not hit within 1 bar",
+ "exit_mode": "trail",
+ "scores": {
+  "market_structure": 15,
+  "entry_quality": 15,
+  "statistical_edge": 0,
+  "liquidity": 10,
+  "volatility": 3,
+  "derivatives_evidence": 1,
+  "macro_event_risk": 0,
+  "execution_cost": 5,
+  "risk_reward": 7
+ },
+ "score_reasons": {
+  "market_structure": "4/4 timeframes in a down regime: ['1W (from daily)', '1D', '4H', '1H']",
+  "entry_quality": "objective TRX trigger live on the last closed bar; extension 1.64 ATR on the top timeframe",
+  "statistical_edge": "registry status for TRX / crypto / short: REJECTED",
+  "liquidity": "24h turnover 2424M USD, spread 0.062 bps",
+  "volatility": "stop is 0.5-3 ATR from entry by construction; volatility expanding on at least one timeframe",
+  "derivatives_evidence": "funding -17.1%/yr -> carry for a short -17.1%/yr. Capped at 5 of 10: positioning, taker flow and liquidation data need a derivatives source",
+  "macro_event_risk": "not checked by this script: set after checking a sourced event calendar",
+  "execution_cost": "fees + spread + slippage are 2.9% of the stop distance",
+  "risk_reward": "trailing exit: no fixed reward; scored from the measured profit factor"
+ },
+ "gates": {
+  "data_quality_verified": true,
+  "objective_entry_and_invalidation": true,
+  "out_of_sample_evidence": false,
+  "positive_net_expectancy": false,
+  "liquidity_sufficient": true,
+  "portfolio_risk_acceptable": false,
+  "adversarial_review_passed": false
+ },
+ "conflicting_signals": []
+}

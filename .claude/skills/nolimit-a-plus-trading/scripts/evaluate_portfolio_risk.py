@@ -5,7 +5,8 @@ Usage: python evaluate_portfolio_risk.py account.json
 
 account.json:
 {
-  "snapshot_ts_ms": 1795214000000, "now_ms": 1795214060000, "source": "bitget-api-readonly" | "screenshots",
+  "snapshot_ts_ms": 1795214000000, "now_ms": 1795214060000,
+  "source": "bitget-api-readonly" | "screenshots" | "user_stated",   # user_stated is never sufficient to open a position
   "complete": true,                         # false if any account view failed to load
   "ledgers": {"unified": 6000, "funding": 1000, "bots": 2400, "cfd": 250},   # each ledger counted ONCE
   "reported_overview_total": 9650,          # optional cross-check (exchange "Overview")
@@ -39,6 +40,9 @@ def evaluate(a: dict) -> dict:
 
     if a.get("kill_switch"):
         reasons.append("kill_switch_active")
+    if a.get("source") == "user_stated":
+        reasons.append("account_state_user_stated: balances and positions were typed by the user, not read from the account "
+                       "or fresh screenshots; limits below are indicative only")
     if a.get("complete") is not True:
         reasons.append("account_incomplete: at least one account view is missing; no new entries")
     ts = num(a, "snapshot_ts_ms")
@@ -119,6 +123,9 @@ def evaluate(a: dict) -> dict:
         "portfolio_leverage_after": round(after_gross / equity, 4) if equity else None,
         "open_planned_risk": round(open_risk, 2), "open_planned_risk_after": round(after_risk, 2),
         "cluster": cluster, "limits": L,
+        "account_state_status": "VERIFIED" if a.get("source") in MAX_SNAPSHOT_AGE_S and a.get("complete") is True
+                                and not any(r.startswith(("account_snapshot", "account_incomplete")) for r in reasons) else
+                                "USER_STATED" if a.get("source") == "user_stated" else "UNVERIFIED",
         "existing_positions_modified": False,
     }
 

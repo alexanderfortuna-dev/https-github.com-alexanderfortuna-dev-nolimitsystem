@@ -1,0 +1,5 @@
+{"snapshot_ts_ms": 1795219344189, "now_ms": 1795219344189, "source": "user_stated", "complete": false,
+ "ledgers": {"unified": 5000, "funding": null, "bots": null, "cfd": null}, "liabilities": 0,
+ "trading_equity": 5000, "positions": [], "pending_orders": [],
+ "candidate": {"symbol": "ETHUSDT", "side": "short", "asset_group": "crypto", "notional": 0, "planned_risk": 25},
+ "kill_switch": false}

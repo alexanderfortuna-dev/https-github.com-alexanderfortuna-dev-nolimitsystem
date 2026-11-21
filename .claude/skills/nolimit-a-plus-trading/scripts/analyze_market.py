@@ -78,6 +78,7 @@ def weekly_from_daily(rows: list[dict]) -> list[dict]:
 def live_setups(rows: list[dict], strategy: str) -> list[dict]:
     sus, a14 = bt.setups(rows, strategy)
     last = len(rows) - 1
+    step = rows[-1]["ts"] - rows[-2]["ts"] if len(rows) > 1 else 0
     out = []
     for s in sus:
         if s["i"] == last:
@@ -86,7 +87,8 @@ def live_setups(rows: list[dict], strategy: str) -> list[dict]:
                         "entry_trigger": s["trigger"], "stop": s["stop"], "stop_pct": round(r / s["trigger"] * 100, 3),
                         "exit_mode": s["exit"], "reference_1r": s["trigger"] + s["side"] * r,
                         "reference_3r": s["trigger"] + s["side"] * 3 * r, "signal_bar_open_ms": int(rows[last]["ts"]),
-                        "valid_for_bars": 1})
+                        "valid_for_bars": 1, "setup_expiry_ms": int(rows[last]["ts"] + 2 * step),
+                        "setup_expiry_utc": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime((rows[last]["ts"] + 2 * step) / 1000))})
     return out
 
 
@@ -222,7 +224,9 @@ def analyze(symbol: str, style: str = "swing", direction: str | None = None, str
                 "conflicting_signals": conflicts,
             }})
     return {"status": "OK", "symbol": symbol, "style": style, "asset_group": group, "analysed_at_ms": int(time.time() * 1000),
-            "quote": q, "contract": contract, "timeframes": frames, "live_setups": setups_live, "derivatives": deriv,
+            "quote": q, "contract": contract, "timeframes": frames,
+            "live_setups": setups_live, "live_setups_note": "all directions, for context; `candidates` holds only the requested side",
+            "suggested_expected_hold_h": {"swing": 120, "day": 24}[style], "derivatives": deriv,
             "conflicting_signals": conflicts, "candidates": candidates, "notes": notes,
             "how_to_use": "Pick a candidate's `setup`, fill macro_event_risk with a sourced check, set account_state_status and the "
                           "portfolio and adversarial gates from steps 4 and 6, then pass it to evaluate_setup.py. "

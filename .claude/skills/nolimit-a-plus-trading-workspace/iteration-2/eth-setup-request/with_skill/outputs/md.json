@@ -1,0 +1,44 @@
+{
+  "status": "VERIFIED",
+  "purpose": "execution",
+  "instrument": "ETHUSDT",
+  "execution_venue": "bitget",
+  "checked_at_ms": 1795219297441,
+  "reference_price": 1623.43,
+  "max_source_disagreement": null,
+  "errors": [],
+  "warnings": [],
+  "quotes": [
+    {
+      "provider": "bitget-api-v3",
+      "exchange": "bitget",
+      "instrument": "ETHUSDT",
+      "timestamp_ms": 1795219295967,
+      "timezone": "UTC",
+      "latency_s": 1.474,
+      "freshness": "fresh",
+      "bid": 1623.39,
+      "ask": 1623.4,
+      "spread_bps": 0.062,
+      "price": 1623.43,
+      "problems": [],
+      "is_execution_venue": true,
+      "same_instrument": true
+    }
+  ],
+  "contract": {
+    "symbol": "ETHUSDT",
+    "status": "online",
+    "price_tick": 0.01,
+    "qty_step": 0.01,
+    "min_qty": 0.01,
+    "min_notional": 5.0,
+    "max_leverage": 150.0,
+    "max_qty": 9900.0,
+    "taker_fee": 0.0006,
+    "maker_fee": 0.0002,
+    "funding_interval_h": 8.0,
+    "is_rwa": false,
+    "asset_class": "crypto"
+  }
+}

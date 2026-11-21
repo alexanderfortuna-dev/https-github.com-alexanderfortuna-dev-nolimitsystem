@@ -83,3 +83,10 @@ def test_rejected_example_account():
     assert not r["can_open_new_position"] and any("gross_exposure_cap" in x for x in r["reasons"])
     assert any("cfd" in w for w in r["warnings"]) and any("BTCUSDT" in w for w in r["warnings"])
     assert r["effective_leverage"] > 2.9
+
+
+def test_user_stated_account_is_never_sufficient():
+    r = epr.evaluate(acc(source="user_stated"))
+    assert not r["can_open_new_position"] and r["account_state_status"] == "USER_STATED"
+    assert epr.evaluate(ACC)["account_state_status"] == "VERIFIED"
+    assert epr.evaluate(acc(complete=False))["account_state_status"] == "UNVERIFIED"

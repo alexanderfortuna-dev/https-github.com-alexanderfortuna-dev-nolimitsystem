@@ -30,7 +30,7 @@ TradingView di claude.ai: Settings → Connectors → Add custom connector → t
 |---|---|---|
 | 1 | Struktur skill (26 file) | LULUS — `validate_skill.py` dan packager resmi skill-creator |
 | 2 | YAML frontmatter | LULUS — setelah satu bug nyata diperbaiki (titik dua di deskripsi); ada test regresi |
-| 3 | Sintaks script + unit test | LULUS — 37/37 |
+| 3 | Sintaks script + unit test | LULUS — 38/38 |
 | 4 | Perhitungan vs contoh manual | LULUS — sizing BTC cocok sampai sen; backtester mandiri = mesin repo (86 trade, +0,0598R) |
 | 5 | Data hilang | LULUS — quote kosong, tanpa timestamp, error sumber, spesifikasi kontrak hilang → INSUFFICIENT DATA |
 | 6 | Kontrak salah | LULUS — XAUUSD.s (CFD) vs XAUUSDT (perp), spesifikasi simbol lain, venue lain → ditolak |
@@ -39,7 +39,7 @@ TradingView di claude.ai: Settings → Connectors → Add custom connector → t
 | 9 | Skenario no-trade | LULUS — strategi ditolak/tak dikenal, bukti di luar kelas aset atau arah, breaker, kill switch |
 | 10 | API/konektor hilang | LULUS — kegagalan fetch → INSUFFICIENT DATA, exit code 2 |
 | 11 | Data live | LULUS — `validate_market_data.py --fetch-bitget` dan `analyze_market.py` pada BTC/ETH/XAU |
-| 12 | Dipakai agen Claude lain | 2 uji iterasi-1 (ETH; "short XAU 50x"): keduanya NO TRADE, 50x ditolak, ukuran tidak dikarang. Temuan mereka (tak ada script analisis; aturan equity tak konsisten; target tetap untuk strategi trailing) sudah diperbaiki |
+| 12 | Dipakai agen Claude lain | 3 uji (ETH dua kali; "short XAU 50x"): semuanya NO TRADE, 50x ditolak, ukuran tidak dikarang. Temuan iterasi-1 diperbaiki; pada iterasi-2 agen tidak perlu menulis kode bantu. Sisa temuan iterasi-2 (aturan output, urutan langkah, expiry) juga sudah diperbaiki tetapi belum diuji ulang |
 
 **Tidak bisa diuji di sini:** pemasangan di claude.ai (butuh akun pemilik); penemuan otomatis skill oleh sesi Claude Code baru; TradingView MCP; audit akun dengan key nyata; sumber derivatif dan makro pihak ketiga; perbandingan dengan/ tanpa skill (baseline) tidak dijalankan.
 

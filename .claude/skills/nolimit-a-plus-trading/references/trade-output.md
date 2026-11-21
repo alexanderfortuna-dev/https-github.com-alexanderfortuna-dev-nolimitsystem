@@ -30,11 +30,10 @@ FINAL DECISION:  TRADE CANDIDATE / WAIT / NO TRADE / INSUFFICIENT DATA
 ## Rules
 - STATUS is one of: PAPER CANDIDATE, REFERENCE LEVELS ONLY, REJECTED, DATA UNAVAILABLE.
 - If the data gate failed, write "-" for every price field. Do not show levels from stale or unverified data.
-- If the decision is WAIT or NO TRADE and data is verified, levels may be shown with STATUS "REFERENCE LEVELS ONLY", and POSITION SIZE is shown only when account state is verified.
+- If the decision is WAIT, NO TRADE or INSUFFICIENT DATA but market data is verified, levels may be shown with STATUS "REFERENCE LEVELS ONLY".
+- POSITION SIZE, LEVERAGE and MAXIMUM PLANNED LOSS follow the account, independent of the decision: verified account -> show them; user-stated equity -> show them with "(indicative: equity not verified)"; no equity -> "- (needs account equity)".
 - Trailing strategies: write the trailing rule in TAKE PROFIT 1, "none (trailing exit)" in TAKE PROFIT 2, and "n/a (trailing)" in NET REWARD/RISK. The sizing output field `reference_3r_price` may be quoted as a distance marker, labelled as such.
-- User-stated equity (no connector, no screenshots): show POSITION SIZE, LEVERAGE and MAXIMUM PLANNED LOSS from the sizing script followed by "(indicative: equity not verified)". The decision is never TRADE CANDIDATE in this case.
-- No equity at all: write "- (needs account equity)" in POSITION SIZE and MAXIMUM PLANNED LOSS; LEVERAGE may still show the setting, which depends only on the stop distance.
-- SETUP EXPIRY: the close time of the bar after the signal bar (signal bar open + 2 bar lengths) for one-bar triggers.
+- SETUP EXPIRY: copy `setup_expiry_utc` from `analyze_market.py`.
 - After the block, give at most: the reason for the decision, the main contradicting evidence, and what would change the decision.
 - Never state or imply a guaranteed outcome, and never report an order as placed or filled.
 

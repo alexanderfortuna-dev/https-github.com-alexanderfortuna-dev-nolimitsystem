@@ -26,6 +26,10 @@ def tightened(overrides: dict | None) -> dict:
 
 def load_input(argv: list[str]) -> dict:
     """Read JSON from a file path argument or from stdin."""
+    if "--help" in argv or "-h" in argv:
+        import __main__
+        print(__main__.__doc__ or "see the script docstring")
+        raise SystemExit(0)
     args = [a for a in argv[1:] if not a.startswith("--")]
     raw = open(args[0]).read() if args else sys.stdin.read()
     return json.loads(raw)

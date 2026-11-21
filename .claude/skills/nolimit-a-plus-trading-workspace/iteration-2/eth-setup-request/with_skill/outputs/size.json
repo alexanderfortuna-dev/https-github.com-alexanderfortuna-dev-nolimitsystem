@@ -1,0 +1,5 @@
+{"equity": 5000, "available": 5000, "side": "short", "entry": 1579.72, "stop": 1671.7535390291064,
+ "contract": {"symbol": "ETHUSDT", "price_tick": 0.01, "qty_step": 0.01, "min_qty": 0.01, "min_notional": 5.0, "max_qty": 9900.0, "max_leverage": 150.0, "taker_fee": 0.0006, "maker_fee": 0.0002},
+ "slippage": 0.0002, "existing_gross_exposure": 0, "open_planned_risk": 0,
+ "funding_rate_per_interval": -0.000156, "funding_interval_h": 8,
+ "exit_mode": "trail", "trail_rule": "3 ATR(14, 4H) above the lowest low since entry", "equity_source": "user_stated"}
