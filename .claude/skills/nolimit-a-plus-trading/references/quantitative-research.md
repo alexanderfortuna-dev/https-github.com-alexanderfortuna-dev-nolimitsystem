@@ -36,4 +36,5 @@ Report these and nothing invented: trades evaluated, net expectancy (R), win rat
 - TPB and DBO: rejected, zero or negative after costs.
 - TRX: research candidate on crypto 4H. +0.16R over 1,424 trades (2021-2026), interval +0.02 to +0.30, edge concentrated on the long side (+0.28R long, +0.04R short), longest losing streak 24. Not yet through the multiple-testing and forward gates.
 - TRX-A (alignment filter): rejected; aligned shorts lost 0.13R per trade.
+- CAP (capitulation reversal, both directions): rejected. -0.15R over 1,529 trades, interval -0.23 to -0.07; "buy extreme fear" lost on both sides in every sub-period.
 No strategy is VALIDATED today, so the skill cannot currently produce a TRADE CANDIDATE.

@@ -32,7 +32,8 @@ A setup is valid only if a second person could place the same order from the des
 | Trend continuation / breakout | 55-bar breakout with trend, 2 ATR stop, 3 ATR trailing exit | TRX |
 | Breakout after contraction | 20-bar range break with ATR(14) < ATR(100) | DBO |
 | Pullback in trend | EMA20 reclaim bar in an EMA50/200 trend | TPB |
-| Breakout and retest, failed-breakout reversal, mean reversion | Not yet specified and tested | none: research only |
+| Counter-trend reversal after a 3 ATR extension (capitulation or blow-off) | Reversal bar after the extreme, stop beyond the 3-bar swing | CAP (rejected) |
+| Breakout and retest, failed-breakout reversal, other mean reversion | Not yet specified and tested | none: research only |
 
 Exact triggers, stops and exits for each id are in the `exit` block of `assets/strategy_registry.json`, and `scripts/analyze_market.py` computes them live. Evidence is scoped: a result on crypto does not cover gold, and a long-side edge does not cover shorts (`asset_groups`, `direction_status`). Check the status in `assets/strategy_registry.json`. Families without a registry entry can be analysed and backtested, never recommended.
 

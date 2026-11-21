@@ -1,6 +1,6 @@
 {
   "_note": "Evidence registry. A strategy may only be marked VALIDATED from a reproducible run that passes every gate in references/quantitative-research.md. Edit this file only together with the run report that justifies it.",
-  "updated": "2026-11-20",
+  "updated": "2026-11-21",
   "source": "Bitget USDT-FUTURES candles, runs recorded in the nolimit-aplus repository (reports/validation_summary.json, reports/trxa_check.json)",
   "strategies": [
     {
@@ -100,6 +100,37 @@
         "short_net_r": -0.127
       },
       "note": "The alignment filter did not improve on TRX; aligned shorts lost money."
+    },
+    {
+      "id": "CAP",
+      "name": "Capitulation / blow-off reversal: counter-trend entry after a 3 ATR extension from EMA20",
+      "timeframes": [
+        "4H"
+      ],
+      "status": "REJECTED",
+      "asset_groups": [
+        "crypto"
+      ],
+      "evidence": {
+        "trades": 1529,
+        "period": "2021-01..2026-11",
+        "net_r": -0.151,
+        "win_rate": 0.451,
+        "profit_factor": 0.73,
+        "ci95": [
+          -0.232,
+          -0.067
+        ],
+        "long_net_r": -0.141,
+        "short_net_r": -0.161,
+        "longest_losing_streak": 25
+      },
+      "exit": {
+        "mode": "targets",
+        "tp1_r": 1.0,
+        "tp2_r": 3.0
+      },
+      "note": "Buying extreme fear (and fading extreme greed) lost money in every third of the sample and on both sides. The whole confidence interval is below zero."
     }
   ]
 }
