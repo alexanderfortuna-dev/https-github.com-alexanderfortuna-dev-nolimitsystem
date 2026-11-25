@@ -220,6 +220,12 @@ def main() -> int:
         pair = sym.upper() + "USDT"
         if pair in spot:
             universe.append((coin, pair))
+    # Two CoinGecko coins can share a ticker (e.g. AERO). The exchange pair is then ambiguous: drop both.
+    counts = {}
+    for _, pair in universe:
+        counts[pair] = counts.get(pair, 0) + 1
+    ambiguous = sorted(p for p, n in counts.items() if n > 1)
+    universe = [(c, p) for c, p in universe if counts[p] == 1]
 
     btc = spot_daily("BTCUSDT", 200, now_ms)
     reg = regime(btc)
@@ -285,7 +291,7 @@ def main() -> int:
     results.sort(key=lambda r: (-r["pillar_total"], min(r["s1"]["distance_to_trigger"] if r["s1"]["conditions_met"] >= 2 else 9,
                                                          r["s4"].get("distance_to_trigger", 9) if r["s4"]["conditions_met"] >= 3 else 9)))
     report = {"generated_utc": time.strftime("%Y-%m-%d %H:%M", time.gmtime()), "regime": reg,
-              "coverage": {"coingecko_top": len(cg), "tradable_on_bitget_spot": len(universe), "scored": len(results), "skipped": skipped},
+              "coverage": {"coingecko_top": len(cg), "ambiguous_ticker_dropped": ambiguous, "tradable_on_bitget_spot": len(universe), "scored": len(results), "skipped": skipped},
               "results": results}
     out_dir.mkdir(exist_ok=True)
     path = out_dir / f"value_scan_{time.strftime('%Y%m%d', time.gmtime())}.json"
